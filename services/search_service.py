@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 ALIASES_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "product_aliases.json")
 
+import functools
+
 class SearchService:
     """
     Service for finding and filtering hardware products.
@@ -20,6 +22,45 @@ class SearchService:
     def __init__(self):
         self.catalog = get_catalog()
         self.aliases = self._load_aliases()
+        
+        # Build O(1) in-memory indices for ultra-low latency routing
+        self.product_index = {}
+        self.brand_index = {}
+        self.chipset_index = {}
+        self.category_index = {}
+        
+        for item in self.catalog:
+            name_clean = str(item.get("product_name", "")).strip().lower()
+            brand_clean = str(item.get("brand", "")).strip().lower()
+            chipset_clean = str(item.get("chipset", "")).strip().lower()
+            category_clean = str(item.get("category", "")).strip().lower()
+            
+            # Populate product index
+            self.product_index[name_clean] = item
+            
+            # Populate brand index
+            if brand_clean:
+                if brand_clean not in self.brand_index:
+                    self.brand_index[brand_clean] = []
+                self.brand_index[brand_clean].append(item)
+                
+            # Populate chipset index
+            if chipset_clean:
+                if chipset_clean not in self.chipset_index:
+                    self.chipset_index[chipset_clean] = []
+                self.chipset_index[chipset_clean].append(item)
+                
+            # Populate category index
+            if category_clean:
+                if category_clean not in self.category_index:
+                    self.category_index[category_clean] = []
+                self.category_index[category_clean].append(item)
+                
+        # Expand alias index to directly map alias to product objects if they exist
+        self.alias_index = {}
+        for alias, targets in self.aliases.items():
+            alias_clean = alias.strip().lower()
+            self.alias_index[alias_clean] = targets
 
     def _load_aliases(self) -> dict:
         if os.path.exists(ALIASES_PATH):
@@ -29,25 +70,28 @@ class SearchService:
 
     def exact_lookup(self, product_name: str) -> dict:
         """
-        Find a product by its exact name or ID (case-insensitive).
+        Find a product by its exact name (O(1) lookup).
         """
         logger.info(f"Performing exact lookup for: {product_name}")
-        target = str(product_name).strip().upper()
+        target = str(product_name).strip().lower()
         
-        for item in self.catalog:
-            name_upper = str(item.get("product_name", "")).strip().upper()
-            id_upper = str(item.get("id", "")).strip().upper()
-            if target == name_upper or target == id_upper:
-                return {
-                    "status": "success",
-                    "product": item
-                }
+        if target in self.product_index:
+            return {
+                "status": "success",
+                "product": self.product_index[target]
+            }
                 
         logger.warning(f"Exact match not found for: {product_name}")
         return {
             "status": "not_found",
             "product": None
         }
+
+    @functools.lru_cache(maxsize=512)
+    def _fuzzy_match(self, term: str) -> list:
+        """Cached fuzzy match logic."""
+        choices = [f"{item.get('brand', '')} {item['product_name']}".strip() for item in self.catalog]
+        return process.extract(term, choices, scorer=fuzz.WRatio, processor=utils.default_process, limit=10)
 
     def search_product(self, query: str) -> dict:
         """
@@ -59,37 +103,51 @@ class SearchService:
 
         query_clean = str(query).strip().lower()
         
-        # Check if query matches a brand or category exactly
-        brands = set(str(item.get("brand", "")).lower() for item in self.catalog if item.get("brand"))
-        categories = set(str(item.get("category", "")).lower() for item in self.catalog if item.get("category"))
-        
-        if query_clean in brands or query_clean in categories:
-            matched_items = [item for item in self.catalog if 
-                             str(item.get("brand", "")).lower() == query_clean or 
-                             str(item.get("category", "")).lower() == query_clean]
-            
+        # 0. Check O(1) precise intent routing mappings
+        if query_clean in self.brand_index:
             return {
                 "status": "ask_clarification",
                 "score": 100,
-                "message": f"You searched for '{query}', which is a broad brand or category. I found {len(matched_items)} items. Could you be more specific on which model you need?",
-                "suggestions": matched_items[:5]
+                "message": f"You searched for the brand '{query}'. I found {len(self.brand_index[query_clean])} items. Could you be more specific?",
+                "suggestions": self.brand_index[query_clean][:5]
+            }
+            
+        if query_clean in self.category_index:
+            return {
+                "status": "ask_clarification",
+                "score": 100,
+                "message": f"You searched for the category '{query}'. I found {len(self.category_index[query_clean])} items. Could you be more specific?",
+                "suggestions": self.category_index[query_clean][:5]
+            }
+            
+        if query_clean in self.chipset_index:
+            return {
+                "status": "ask_clarification",
+                "score": 100,
+                "message": f"You searched for the chipset '{query}'. I found {len(self.chipset_index[query_clean])} items. Could you be more specific?",
+                "suggestions": self.chipset_index[query_clean][:5]
+            }
+            
+        if query_clean in self.product_index:
+            return {
+                "status": "exact_match",
+                "score": 100,
+                "product": self.product_index[query_clean]
             }
         
         # 1. Expand aliases
         search_terms = [query_clean]
-        for key, targets in self.aliases.items():
-            if key.lower() in query_clean:
+        for alias, targets in self.alias_index.items():
+            if alias in query_clean:
                 search_terms.extend([t.lower() for t in targets])
                 
-        choices = [f"{item.get('brand', '')} {item['product_name']}".strip() for item in self.catalog]
-        
         best_overall_score = 0
         best_overall_index = -1
         all_results = []
         
         # Search all expanded terms and keep the best scores
         for term in search_terms:
-            results = process.extract(term, choices, scorer=fuzz.WRatio, processor=utils.default_process, limit=10)
+            results = self._fuzzy_match(term)
             for res_str, score, idx in results:
                 all_results.append((res_str, score, idx))
                 if score > best_overall_score:

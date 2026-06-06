@@ -108,10 +108,11 @@ class GeminiClient:
         contents = []
         for msg in abstract_history:
             if msg["role"] == "user":
-                contents.append(types.Content(role="user", parts=[types.Part.from_text(msg["content"])]))
+                contents.append(types.Content(role="user", parts=[types.Part.from_text(text=msg["content"])]))
             elif msg["role"] == "assistant":
                 if msg.get("content"):
-                    contents.append(types.Content(role="model", parts=[types.Part.from_text(msg["content"])]))
+                    contents.append(types.Content(role="model", parts=[types.Part.from_text(text=msg["content"])]))
+        
         
         self.chat = self.client.chats.create(
             model=self.model,
