@@ -56,19 +56,7 @@ class FastIntentRouter:
                 "text": "To give you the best recommendations, I need a little more context! Are you looking for the best CPU, the best Motherboard for a specific processor, or something else?"
             }
             
-        # 4. Check for comparison generic queries
-        import re
-        comp_match = re.search(r'compare\s+([a-zA-Z0-9\s-]+?)\s+and\s+([a-zA-Z0-9\s-]+)', query_clean)
-        if comp_match:
-            return {
-                "tool": "compare_products",
-                "args": {
-                    "product1": comp_match.group(1).strip(),
-                    "product2": comp_match.group(2).strip()
-                }
-            }
-            
-        # 5. Check for cheapest queries
+        # 4. Check for cheapest queries
         cheap_match = re.search(r'cheapest\s+([a-zA-Z0-9\s-]+?)(?:\s+motherboard|\s+cpu|\s+board|\s+processor)?$', query_clean)
         if cheap_match:
             cat_query = cheap_match.group(1).strip()
