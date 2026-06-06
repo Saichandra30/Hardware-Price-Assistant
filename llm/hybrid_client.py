@@ -119,6 +119,23 @@ class HybridClient:
                     else:
                         final_text = f"I'm sorry, I couldn't find good recommendations for '{args.get('base_product')}'. Are you sure that CPU is in our catalog?"
                     
+                elif tool_name == "get_cheapest":
+                    result = self.tool_manager.search_service.get_cheapest(args.get("category", ""))
+                    event = {"type": "tool_result", "data": result}
+                    components_executed.append(event)
+                    yield event
+                    if result.get("status") == "success":
+                        final_text = f"The cheapest {args.get('category')} we have is the {result['product']['product_name']} at ${result['min_price']}."
+                    else:
+                        final_text = f"I'm sorry, I couldn't find any products in the category '{args.get('category')}'."
+                        
+                elif tool_name == "compare_products":
+                    result = self.tool_manager.compare_products(**args)
+                    event = {"type": "tool_result", "data": result}
+                    components_executed.append(event)
+                    yield event
+                    final_text = f"Here is the comparison between {args.get('product1')} and {args.get('product2')}:"
+                    
                 search_time = time.perf_counter() - search_start
                 logger.info(f"[Latency] Direct Tool Execution completed in {search_time:.4f}s")
                 

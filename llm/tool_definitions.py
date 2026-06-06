@@ -113,6 +113,23 @@ class ToolManager:
             }
         except Exception:
             return {"error": "Internal processing error."}
+    @functools.lru_cache(maxsize=128)
+    def get_cheapest(self, category: str) -> dict:
+        """Gets the cheapest product in a specific category."""
+        if not isinstance(category, str):
+            return {"error": "Invalid parameter type."}
+        try:
+            return self.search_service.get_cheapest(str(category).strip()[:100])
+        except Exception:
+            return {"error": "Internal processing error."}
+
+    @functools.lru_cache(maxsize=128)
+    def filter_products(self, category: str = None, brand: str = None, chipset: str = None, max_price: float = None) -> dict:
+        """Filters products based on specific criteria."""
+        try:
+            return self.search_service.filter_products(category=category, brand=brand, chipset=chipset, max_price=max_price)
+        except Exception:
+            return {"error": "Internal processing error."}
 
     def get_callable_tools(self) -> list:
         """Returns a list of callable tool functions."""
@@ -123,7 +140,9 @@ class ToolManager:
             self.recommend_products,
             self.find_alternatives,
             self.get_related_products,
-            self.get_catalog_stats
+            self.get_catalog_stats,
+            self.get_cheapest,
+            self.filter_products
         ]
 
     def get_groq_tools(self) -> list:
@@ -243,6 +262,40 @@ class ToolManager:
                     "parameters": {
                         "type": "object",
                         "properties": {},
+                        "required": []
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_cheapest",
+                    "description": "Gets the cheapest product in a specific category.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "category": {
+                                "type": "string",
+                                "description": "The category to search in (e.g. 'motherboard', 'cpu')."
+                            }
+                        },
+                        "required": ["category"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "filter_products",
+                    "description": "Filters products based on category, brand, chipset, or max_price.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "category": {"type": "string"},
+                            "brand": {"type": "string"},
+                            "chipset": {"type": "string"},
+                            "max_price": {"type": "number"}
+                        },
                         "required": []
                     }
                 }

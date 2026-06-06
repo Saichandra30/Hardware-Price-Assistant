@@ -17,7 +17,10 @@ class FastIntentRouter:
         """
         Returns a dict with 'tool' and 'args', or None if it needs the LLM.
         """
+        import re
         query_clean = str(query).strip().lower()
+        query_clean = re.sub(r'[^\w\s-]', '', query_clean).strip()
+        
         
         # 1. Check for basic greeting or conversational prompts
         greetings = {"hi", "hello", "hey", "help", "start"}
@@ -53,7 +56,35 @@ class FastIntentRouter:
                 "text": "To give you the best recommendations, I need a little more context! Are you looking for the best CPU, the best Motherboard for a specific processor, or something else?"
             }
             
-        # 4. Check for exact hardware matches in indices
+        # 4. Check for comparison generic queries
+        import re
+        comp_match = re.search(r'compare\s+([a-zA-Z0-9\s-]+?)\s+and\s+([a-zA-Z0-9\s-]+)', query_clean)
+        if comp_match:
+            return {
+                "tool": "compare_products",
+                "args": {
+                    "product1": comp_match.group(1).strip(),
+                    "product2": comp_match.group(2).strip()
+                }
+            }
+            
+        # 5. Check for cheapest queries
+        cheap_match = re.search(r'cheapest\s+([a-zA-Z0-9\s-]+?)(?:\s+motherboard|\s+cpu|\s+board|\s+processor)?$', query_clean)
+        if cheap_match:
+            cat_query = cheap_match.group(1).strip()
+            if cat_query == "am5":
+                cat_query = "am5 motherboard"
+            elif cat_query == "am4":
+                cat_query = "am4 motherboard"
+                
+            return {
+                "tool": "get_cheapest",
+                "args": {"category": cat_query}
+            }
+
+        # 6. Check for exact hardware matches in indices
+        # We only want to trigger this if the query is EXACTLY the product name, 
+        # or if it's very short. Otherwise, it intercepts things like "What is the price of Asus?"
         if query_clean in self.search_service.product_index:
             return {
                 "tool": "search_products",
@@ -79,15 +110,11 @@ class FastIntentRouter:
             }
             
         for alias in self.search_service.alias_index:
-            if alias in query_clean:
-                # E.g. "what is the price of a 9700x?" -> contains alias "9700x"
+            if alias == query_clean:
                 return {
                     "tool": "search_products",
                     "args": {"query": query_clean}
                 }
-        
-        # If it's a comparison "compare X and Y", we can let the LLM handle it,
-        # or we could regex it. For now, let the LLM handle complex queries.
         
         logger.info(f"Router did not find deterministic match for: {query}")
         return None

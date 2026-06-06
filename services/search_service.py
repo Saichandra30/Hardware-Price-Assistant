@@ -229,9 +229,23 @@ class SearchService:
             if brand and brand.upper() != str(item.get("brand", "")).upper():
                 continue
                 
-            if chipset and chipset.upper() not in str(item.get("chipset", "")).upper():
-                continue
+            if chipset:
+                target_chipset = chipset.upper()
+                item_chipset = str(item.get("chipset", "")).upper()
+                item_name = str(item.get("product_name", "")).upper()
                 
+                # Handle socket aliases
+                if target_chipset == "AM5":
+                    am5_chipsets = ["X870", "B850", "B840", "X670", "B650", "A620"]
+                    if not any(c in item_chipset or c in item_name for c in am5_chipsets):
+                        continue
+                elif target_chipset == "AM4":
+                    am4_chipsets = ["X570", "B550", "A520", "X470", "B450", "A320"]
+                    if not any(c in item_chipset or c in item_name for c in am4_chipsets):
+                        continue
+                else:
+                    if target_chipset not in item_chipset and target_chipset not in item_name:
+                        continue
             if max_price is not None:
                 prices = [p for p in item.get("prices", {}).values() if p > 0]
                 if not prices:
@@ -248,24 +262,40 @@ class SearchService:
             "results": results
         }
 
-    def get_cheapest(self, category: str) -> dict:
+    def get_cheapest(self, category: str = None, brand: str = None, chipset: str = None) -> dict:
         """
-        Get the cheapest product in a specific category.
+        Get the cheapest product matching the criteria.
         """
-        logger.info(f"Finding cheapest product for category: {category}")
+        logger.info(f"Finding cheapest product - category:{category}, brand:{brand}, chipset:{chipset}")
+        
+        # Parse query-like category strings (e.g. "AM5 Motherboard")
+        if category and not chipset:
+            cat_upper = category.upper()
+            if "AM5" in cat_upper:
+                chipset = "AM5"
+                category = category.upper().replace("AM5", "").strip()
+            elif "AM4" in cat_upper:
+                chipset = "AM4"
+                category = category.upper().replace("AM4", "").strip()
+                
+        filter_res = self.filter_products(category=category, brand=brand, chipset=chipset)
+        if filter_res["count"] == 0:
+            return {
+                "status": "not_found",
+                "message": f"No valid products found matching those criteria."
+            }
+            
         cheapest_product = None
         min_price = float('inf')
         
-        for item in self.catalog:
-            item_category = str(item.get("category", "")).strip().upper()
-            if item_category and item_category in category.upper():
-                prices = [p for p in item.get("prices", {}).values() if p > 0]
-                if prices:
-                    item_min = min(prices)
-                    if item_min < min_price:
-                        min_price = item_min
-                        cheapest_product = item
-                        
+        for item in filter_res["results"]:
+            prices = [p for p in item.get("prices", {}).values() if p > 0]
+            if prices:
+                item_min = min(prices)
+                if item_min < min_price:
+                    min_price = item_min
+                    cheapest_product = item
+                    
         if cheapest_product:
             return {
                 "status": "success",
@@ -275,5 +305,5 @@ class SearchService:
         else:
             return {
                 "status": "not_found",
-                "message": f"No valid products found for category {category}."
+                "message": f"Products found, but none had valid prices."
             }
