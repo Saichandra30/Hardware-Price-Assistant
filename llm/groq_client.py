@@ -176,19 +176,22 @@ class GroqClient:
                         err_json = err_data.json()
                         if err_json.get("error", {}).get("code") == "tool_use_failed":
                             failed_gen = err_json["error"].get("failed_generation", "")
-                            import re
                             import uuid
-                            
-                            # Find all function calls in the failed generation
-                            matches = list(re.finditer(r'<function=([a-zA-Z0-9_]+)(\{.*?\})?</function>', failed_gen))
+                            parts = failed_gen.split('<function=')
+                            matches = []
+                            for p in parts[1:]:
+                                if '>' in p:
+                                    func_name, rest = p.split('>', 1)
+                                    args_str = rest.replace('</function>', '').strip()
+                                    matches.append((func_name.strip(), args_str))
                             
                             if matches:
                                 tool_calls_history = []
                                 executed_results = []
                                 
-                                for match in matches:
-                                    func_name = match.group(1)
-                                    args_str = match.group(2) or "{}"
+                                for func_name, args_str in matches:
+                                    if not args_str:
+                                        args_str = "{}"
                                     tc_id = f"call_{str(uuid.uuid4())[:8]}"
                                     
                                     tool_calls_history.append({
