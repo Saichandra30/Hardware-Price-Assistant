@@ -222,6 +222,16 @@ class SearchService:
         logger.info(f"Filtering products - category:{category}, brand:{brand}, chipset:{chipset}, max_price:{max_price}")
         results = []
         
+        # Parse query-like category strings (e.g. "AM5 Motherboard")
+        if category and not chipset:
+            cat_upper = category.upper()
+            if "AM5" in cat_upper:
+                chipset = "AM5"
+                category = category.upper().replace("AM5", "").strip()
+            elif "AM4" in cat_upper:
+                chipset = "AM4"
+                category = category.upper().replace("AM4", "").strip()
+
         for item in self.catalog:
             if category and category.upper() not in str(item.get("category", "")).upper():
                 continue
