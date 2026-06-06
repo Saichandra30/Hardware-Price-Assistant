@@ -72,7 +72,7 @@ class GroqClient:
         self.messages = [
             {"role": "system", "content": SYSTEM_PROMPT}
         ]
-        self.model = "llama-3.3-70b-versatile"
+        self.model = "llama-3.1-8b-instant"
         
     def reset_memory(self):
         """
