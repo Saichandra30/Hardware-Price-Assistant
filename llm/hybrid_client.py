@@ -40,44 +40,11 @@ class HybridClient:
             
             # Reconstruct user message
             if role == "user":
-                self.groq_client.messages.append({"role": "user", "content": content})
+                if content:
+                    self.groq_client.messages.append({"role": "user", "content": content})
                 
-            # Reconstruct assistant messages and fake the tool calls
+            # Reconstruct assistant messages (skip tool calls to save tokens)
             elif role == "assistant":
-                if components:
-                    # We inject the tool calls into the history
-                    tool_calls = []
-                    for idx, comp in enumerate(components):
-                        tc_id = f"call_{idx}"
-                        func_name = comp["func_name"]
-                        # We don't have the exact original args but we fake it as empty
-                        # because Groq just needs the history structure to be valid.
-                        tool_calls.append({
-                            "id": tc_id,
-                            "type": "function",
-                            "function": {
-                                "name": func_name,
-                                "arguments": "{}"
-                            }
-                        })
-                    
-                    self.groq_client.messages.append({
-                        "role": "assistant",
-                        "tool_calls": tool_calls
-                    })
-                    
-                    # Followed immediately by tool responses
-                    for idx, comp in enumerate(components):
-                        tc_id = f"call_{idx}"
-                        func_name = comp["func_name"]
-                        self.groq_client.messages.append({
-                            "role": "tool",
-                            "tool_call_id": tc_id,
-                            "name": func_name,
-                            "content": json.dumps(comp.get("data", {}))
-                        })
-                        
-                # Add final text
                 if content:
                     self.groq_client.messages.append({"role": "assistant", "content": content})
 

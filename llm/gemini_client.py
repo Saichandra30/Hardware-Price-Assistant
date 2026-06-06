@@ -161,7 +161,14 @@ class GeminiClient:
                 audit_logger.error(f"API FAILURE on attempt {attempt + 1}: {e}")
                 
                 # Check if it's a rate limit / 429 error
-                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "Quota exceeded" in error_str:
+                is_rate_limit = (
+                    getattr(e, 'code', None) == 429 or
+                    "429" in error_str or 
+                    "Too Many Requests" in error_str or 
+                    "RESOURCE_EXHAUSTED" in error_str or 
+                    "Quota" in error_str
+                )
+                if is_rate_limit:
                     logger.error("Gemini Rate Limit hit. Raising RateLimitError for fallback.")
                     raise RateLimitError("Gemini Rate Limit Exhausted")
                     
