@@ -5,7 +5,7 @@ import os
 import json
 import logging
 import math
-from rapidfuzz import fuzz, process
+from rapidfuzz import fuzz, process, utils
 from services.catalog_loader import get_catalog
 
 logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class SearchService:
         
         # Search all expanded terms and keep the best scores
         for term in search_terms:
-            results = process.extract(term, choices, scorer=fuzz.WRatio, limit=10)
+            results = process.extract(term, choices, scorer=fuzz.WRatio, processor=utils.default_process, limit=10)
             for res_str, score, idx in results:
                 all_results.append((res_str, score, idx))
                 if score > best_overall_score:
