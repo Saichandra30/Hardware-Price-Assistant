@@ -122,21 +122,28 @@ class SearchService:
                 "score": best_overall_score,
                 "product": product
             }
-        elif best_overall_score >= 70:
+        elif best_overall_score >= 75:
             return {
                 "status": "likely_match",
                 "score": best_overall_score,
                 "product": product,
                 "suggestions": top_candidates
             }
-        else:
+        elif best_overall_score >= 50:
             return {
                 "status": "ask_clarification",
                 "score": best_overall_score,
                 "message": f"I found multiple ambiguous matches for '{query}'. Which one did you mean?",
                 "suggestions": top_candidates
             }
+        else:
+            return {
+                "status": "not_found",
+                "score": best_overall_score,
+                "message": f"Could not find any products matching '{query}'. Please check the spelling or try a different product."
+            }
 
+    @functools.lru_cache(maxsize=128)
     def compare_products(self, product1_query: str, product2_query: str) -> dict:
         """
         Compare two products by finding their best matches.
