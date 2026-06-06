@@ -143,7 +143,6 @@ class SearchService:
                 "message": f"Could not find any products matching '{query}'. Please check the spelling or try a different product."
             }
 
-    @functools.lru_cache(maxsize=128)
     def compare_products(self, product1_query: str, product2_query: str) -> dict:
         """
         Compare two products by finding their best matches.
