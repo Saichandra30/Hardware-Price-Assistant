@@ -82,6 +82,30 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
+    def get_catalog_stats(self) -> dict:
+        """
+        Returns summary statistics about the catalog, including total number of products, available brands, and categories.
+        """
+        try:
+            catalog = self.search_service.catalog
+            brands = sorted(list({item.get("brand") for item in catalog if item.get("brand")}))
+            categories = sorted(list({item.get("category") for item in catalog if item.get("category")}))
+            
+            category_counts = {}
+            for item in catalog:
+                cat = item.get("category")
+                if cat:
+                    category_counts[cat] = category_counts.get(cat, 0) + 1
+                    
+            return {
+                "total_products": len(catalog),
+                "brands_available": brands,
+                "categories": categories,
+                "category_counts": category_counts
+            }
+        except Exception:
+            return {"error": "Internal processing error."}
+
     def get_callable_tools(self) -> list:
         """Returns a list of callable tool functions."""
         return [
@@ -90,7 +114,8 @@ class ToolManager:
             self.compare_products,
             self.recommend_products,
             self.find_alternatives,
-            self.get_related_products
+            self.get_related_products,
+            self.get_catalog_stats
         ]
 
     def get_groq_tools(self) -> list:
@@ -199,6 +224,18 @@ class ToolManager:
                             }
                         },
                         "required": ["product_name"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_catalog_stats",
+                    "description": "Returns summary statistics about the catalog, including total number of products, available brands, and categories.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                        "required": []
                     }
                 }
             }
