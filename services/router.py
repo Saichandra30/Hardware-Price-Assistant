@@ -39,17 +39,7 @@ class FastIntentRouter:
                     "args": {}
                 }
                 
-        # 3. Check for top/best products generic queries and recommendations
-        import re
-        rec_match = re.search(r'(?:best|top|recommend).*?(?:for|with)\s+a?\s*([a-zA-Z0-9\s-]+)', query_clean)
-        if rec_match:
-            target_cpu = rec_match.group(1).strip()
-            # If they provided a CPU, pass it to the deterministic python tool
-            return {
-                "tool": "recommend_products",
-                "args": {"base_product": target_cpu}
-            }
-            
+        # 3. Check for top/best products generic queries
         if query_clean in ["top products", "best products", "recommendations", "best motherboards", "best cpus"]:
             return {
                 "bypassed": True,

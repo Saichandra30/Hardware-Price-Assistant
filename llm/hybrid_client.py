@@ -79,56 +79,47 @@ class HybridClient:
                 return
                 
             elif route_decision.get("tool"):
-                # Execute tool directly and use template
-                yield {"type": "status", "data": "Executing optimized search..."}
-                
-                search_start = time.perf_counter()
                 tool_name = route_decision["tool"]
-                args = route_decision["args"]
+                args = route_decision.get("args", {})
+                # Execute tool directly and use template
+                search_start = time.perf_counter()
                 
-                if tool_name == "search_products":
-                    result = self.tool_manager.search_products(**args)
-                    event = {"type": "tool_result", "data": result}
-                    components_executed.append(event)
-                    yield event
-                    
-                    # Python String Template Formatting
-                    if result.get("status") == "exact_match":
-                        final_text = f"Here is the exact match I found for '{args.get('query')}':"
-                    elif result.get("status") == "likely_match":
-                        final_text = f"I found a likely match for '{args.get('query')}':"
-                    elif result.get("status") == "ask_clarification":
-                        final_text = result.get("message", "Could you be more specific?")
-                    else:
-                        final_text = f"I couldn't find exactly '{args.get('query')}'. Try another search!"
-                        
-                elif tool_name == "get_catalog_stats":
+                if tool_name == "get_catalog_stats":
                     result = self.tool_manager.get_catalog_stats()
-                    event = {"type": "tool_result", "data": result}
+                    event = {"type": "tool_result", "func_name": "get_catalog_stats", "data": result}
                     components_executed.append(event)
                     yield event
                     final_text = "Here are the details of our current hardware inventory:"
                     
-                elif tool_name == "recommend_products":
-                    result = self.tool_manager.recommend_products(**args)
-                    event = {"type": "tool_result", "data": result}
-                    components_executed.append(event)
-                    yield event
-                    if result.get("status") == "success":
-                        final_text = f"Here are the best motherboard recommendations for the {args.get('base_product')}:"
-                    else:
-                        final_text = f"I'm sorry, I couldn't find good recommendations for '{args.get('base_product')}'. Are you sure that CPU is in our catalog?"
-                    
                 elif tool_name == "get_cheapest":
                     result = self.tool_manager.search_service.get_cheapest(args.get("category", ""))
-                    event = {"type": "tool_result", "data": result}
+                    event = {"type": "tool_result", "func_name": "get_cheapest", "data": result}
                     components_executed.append(event)
                     yield event
                     if result.get("status") == "success":
-                        final_text = f"The cheapest {args.get('category')} we have is the {result['product']['product_name']} at ${result['min_price']}."
+                        final_text = f"The cheapest {args.get('category')} we have is the {result['product']['product_name']} at ₹{result['min_price']}."
                     else:
                         final_text = f"I'm sorry, I couldn't find any products in the category '{args.get('category')}'."
                         
+                elif tool_name == "search_product":
+                    result = self.tool_manager.search_product(args.get("query"))
+                    event = {"type": "tool_result", "func_name": "search_products", "data": result}
+                    components_executed.append(event)
+                    yield event
+                    if result.get("status") == "exact_match":
+                        final_text = f"Here is the exact match I found for '{args.get('query')}':"
+                    elif result.get("status") == "likely_match":
+                        final_text = f"I found a close match for '{args.get('query')}':"
+                    else:
+                        final_text = f"I'm sorry, I couldn't find exactly '{args.get('query')}'. Could you be more specific?"
+                        
+                elif tool_name == "filter_products":
+                    result = self.tool_manager.search_service.filter_products(brand=args.get("brand"))
+                    event = {"type": "tool_result", "func_name": "filter_products", "data": result}
+                    components_executed.append(event)
+                    yield event
+                    final_text = f"You searched for the brand '{args.get('brand')}'. I found {result['count']} items. Could you be more specific?"
+                    
                 search_time = time.perf_counter() - search_start
                 logger.info(f"[Latency] Direct Tool Execution completed in {search_time:.4f}s")
                 
