@@ -46,7 +46,7 @@ class ToolManager:
 
     def recommend_products(self, base_product: str) -> dict:
         """
-        Recommends Premium, Performance, and Value products based on a base product (like a CPU).
+        Recommends Premium, Performance, and Value motherboards for a given CPU.
         """
         if not isinstance(base_product, str):
             return {"error": "Invalid parameter type."}
@@ -155,7 +155,7 @@ class ToolManager:
                 "type": "function",
                 "function": {
                     "name": "recommend_products",
-                    "description": "Recommends Premium, Performance, and Value products based on a base product.",
+                    "description": "Recommends Premium, Performance, and Value motherboards for a given CPU.",
                     "parameters": {
                         "type": "object",
                         "properties": {

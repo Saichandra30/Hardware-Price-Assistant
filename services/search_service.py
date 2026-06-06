@@ -81,7 +81,7 @@ class SearchService:
             if key.lower() in query_clean:
                 search_terms.extend([t.lower() for t in targets])
                 
-        choices = [item["product_name"] for item in self.catalog]
+        choices = [f"{item.get('brand', '')} {item['product_name']}".strip() for item in self.catalog]
         
         best_overall_score = 0
         best_overall_index = -1

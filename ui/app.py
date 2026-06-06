@@ -28,8 +28,8 @@ def render_product_card(product: dict) -> None:
 
 def render_comparison_table(res1: dict, res2: dict) -> None:
     """Renders a comparison table between two products."""
-    p1 = res1.get("product")
-    p2 = res2.get("product")
+    p1 = res1.get("product") or (res1.get("suggestions", [None])[0] if res1.get("suggestions") else None)
+    p2 = res2.get("product") or (res2.get("suggestions", [None])[0] if res2.get("suggestions") else None)
     
     if not p1 or not p2:
         st.warning("Comparison failed: Could not find one or both products.")
