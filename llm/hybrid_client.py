@@ -28,6 +28,12 @@ class HybridClient:
         self.active_backend = "gemini"
         logger.info("HybridClient memory reset.")
 
+    def load_memory(self, abstract_history):
+        self.abstract_history = abstract_history
+        self.sync_history_to_groq()
+        self.gemini_client.load_memory(abstract_history)
+        logger.info("HybridClient memory loaded from history.")
+
     def sync_history_to_groq(self):
         """Rebuilds the Groq native history array from abstract_history."""
         logger.info("Syncing abstract history to Groq Client.")

@@ -90,29 +90,63 @@ def run_app() -> None:
     st.title("💻 Hardware Price Assistant")
     
     # Initialize session state
+    HISTORY_FILE = "data/chat_history.json"
+
+    def save_history():
+        import os, json
+        os.makedirs("data", exist_ok=True)
+        try:
+            with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(st.session_state.messages, f, indent=2)
+        except Exception:
+            pass
+
+    def load_history():
+        import os, json
+        if os.path.exists(HISTORY_FILE):
+            try:
+                with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return None
+
     if "messages" not in st.session_state:
-        greeting = (
-            "Hello 👋\n\n"
-            "Welcome to Hardware Price Assistant.\n\n"
-            "I can help you find:\n"
-            "• CPU prices\n"
-            "• Motherboard prices\n"
-            "• Product comparisons\n"
-            "• Recommendations\n"
-            "• Cheapest options\n\n"
-            "Try asking:\n"
-            "\"9700X\"\n"
-            "\"ROG motherboard\"\n"
-            "\"Best board for 9700X\"\n"
-            "\"Show MSI boards under 20k\""
-        )
-        st.session_state.messages = [
-            {"role": "assistant", "content": greeting}
-        ]
+        loaded = load_history()
+        if loaded:
+            st.session_state.messages = loaded
+        else:
+            greeting = (
+                "Welcome to **Hardware Price Assistant**.\n\n"
+                "I can help you find:\n"
+                "• CPU prices\n"
+                "• Motherboard prices\n"
+                "• Product comparisons\n"
+                "• Recommendations\n"
+                "• Cheapest options\n\n"
+                "Try asking:\n"
+                "\"9700X\"\n"
+                "\"ROG motherboard\"\n"
+                "\"Best board for 9700X\"\n"
+                "\"Show MSI boards under 20k\""
+            )
+            st.session_state.messages = [
+                {"role": "assistant", "content": greeting}
+            ]
         
     if "client" not in st.session_state:
         try:
             st.session_state.client = HybridClient()
+            # If we loaded history, we need to pass it into the HybridClient
+            if len(st.session_state.messages) > 1:
+                # We extract abstract history from the messages list
+                abstract_hist = []
+                for msg in st.session_state.messages:
+                    if msg["role"] == "user":
+                        abstract_hist.append({"role": "user", "content": msg["content"]})
+                    elif msg["role"] == "assistant" and msg.get("content") and not msg["content"].startswith("Welcome"):
+                        abstract_hist.append({"role": "assistant", "content": msg["content"], "components": msg.get("components", [])})
+                st.session_state.client.load_memory(abstract_hist)
         except Exception as e:
             st.error(f"Failed to initialize AI Client: {e}. Please check your API key in .env.")
             return
@@ -124,6 +158,7 @@ def run_app() -> None:
             st.session_state.messages = [
                 {"role": "assistant", "content": "Chat cleared. How can I help?"}
             ]
+            save_history()
             if "client" in st.session_state:
                 st.session_state.client.reset_memory()
             st.rerun()
@@ -167,6 +202,7 @@ def run_app() -> None:
             
         # Add user message
         st.session_state.messages.append({"role": "user", "content": query})
+        save_history()
         with st.chat_message("user"):
             st.markdown(query)
             
@@ -204,6 +240,7 @@ def run_app() -> None:
                     "content": final_text,
                     "components": components_to_save
                 })
+                save_history()
             except Exception as e:
                 # Do not leak internal exception details to the UI
                 st.error("An unexpected error occurred while processing your request. Please try again.")
