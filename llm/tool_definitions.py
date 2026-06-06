@@ -1,6 +1,7 @@
 """
 Definitions for the tools available to the LLM for catalog interaction.
 """
+import functools
 from services.search_service import SearchService
 from services.recommendation_service import RecommendationService
 
@@ -11,6 +12,7 @@ class ToolManager:
         self.search_service = SearchService()
         self.rec_service = RecommendationService()
         
+    @functools.lru_cache(maxsize=128)
     def lookup_product(self, exact_name: str) -> dict:
         """
         Finds a product by its exact name. Use when you know the exact model name.
@@ -22,6 +24,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
+    @functools.lru_cache(maxsize=128)
     def search_products(self, query: str) -> dict:
         """
         Searches for a product using fuzzy matching. Use this for general product queries to find hardware availability and prices.
@@ -33,6 +36,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
+    @functools.lru_cache(maxsize=128)
     def compare_products(self, product1: str, product2: str) -> dict:
         """
         Compares two products by finding their best matches in the catalog.
@@ -44,6 +48,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
+    @functools.lru_cache(maxsize=128)
     def recommend_products(self, base_product: str) -> dict:
         """
         Recommends Premium, Performance, and Value motherboards for a given CPU.
@@ -55,6 +60,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
             
+    @functools.lru_cache(maxsize=128)
     def find_alternatives(self, product_name: str) -> dict:
         """
         Finds alternatives in the same category and chipset as the given product.
@@ -71,6 +77,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
             
+    @functools.lru_cache(maxsize=128)
     def get_related_products(self, product_name: str) -> dict:
         """
         Finds related products based on product hierarchy (e.g. same series).
@@ -82,6 +89,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
+    @functools.lru_cache(maxsize=128)
     def get_catalog_stats(self, query: str = "") -> dict:
         """
         Returns summary statistics about the catalog, including total number of products, available brands, and categories.
