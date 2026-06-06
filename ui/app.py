@@ -63,7 +63,7 @@ def render_tool_result(event: dict) -> None:
     func = event.get("func_name")
     data = event.get("data", {})
     
-    if func in ["search_product", "exact_lookup", "get_cheapest"]:
+    if func in ["search_products", "lookup_product", "get_cheapest"]:
         if data.get("status") in ["success", "exact_match", "likely_match"] and data.get("product"):
             render_product_card(data["product"])
             
@@ -72,8 +72,8 @@ def render_tool_result(event: dict) -> None:
             st.markdown("### 📊 Product Comparison")
             render_comparison_table(data.get("product1_result", {}), data.get("product2_result", {}))
             
-    elif func == "filter_products":
-        results = data.get("results", [])
+    elif func in ["filter_products", "find_alternatives", "get_related_products"]:
+        results = data.get("results", []) or data.get("related_products", [])
         if results:
             st.markdown(f"**Found {len(results)} products:**")
             for p in results[:5]:  # limit to 5 to avoid UI spam
@@ -81,7 +81,7 @@ def render_tool_result(event: dict) -> None:
             if len(results) > 5:
                 st.caption(f"...and {len(results)-5} more.")
                 
-    elif func == "recommend_product":
+    elif func == "recommend_products":
         if data.get("status") == "success":
             render_recommendations(data.get("recommendations", {}))
 
@@ -91,8 +91,23 @@ def run_app() -> None:
     
     # Initialize session state
     if "messages" not in st.session_state:
+        greeting = (
+            "Hello 👋\n\n"
+            "Welcome to Hardware Price Assistant.\n\n"
+            "I can help you find:\n"
+            "• CPU prices\n"
+            "• Motherboard prices\n"
+            "• Product comparisons\n"
+            "• Recommendations\n"
+            "• Cheapest options\n\n"
+            "Try asking:\n"
+            "\"9700X\"\n"
+            "\"ROG motherboard\"\n"
+            "\"Best board for 9700X\"\n"
+            "\"Show MSI boards under 20k\""
+        )
         st.session_state.messages = [
-            {"role": "assistant", "content": "Welcome! I can help you find hardware prices, compare products, or recommend motherboards. What are you looking for?"}
+            {"role": "assistant", "content": greeting}
         ]
         
     if "client" not in st.session_state:

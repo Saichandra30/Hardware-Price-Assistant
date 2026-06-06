@@ -1,0 +1,857 @@
+[
+    {
+        "id": "cp_amd_9600x",
+        "product_name": "9600X",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 17250.0,
+            "disti": 17800.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "cp_amd_9700x",
+        "product_name": "9700X",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 23000.0,
+            "disti": 25250.0,
+            "imp": 24500.0
+        }
+    },
+    {
+        "id": "cp_amd_9800x3d",
+        "product_name": "9800X3D",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 38000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "cp_amd_9900x",
+        "product_name": "9900X",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 34500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "cp_amd_9950x",
+        "product_name": "9950X",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 47000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "cp_amd_9900x_3d",
+        "product_name": "9900X 3D",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 47750.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "cp_amd_9950x_3d",
+        "product_name": "9950X 3D",
+        "brand": "AMD",
+        "series": "",
+        "category": "CPU",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "AMD",
+        "prices": {
+            "dealer": 57000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_prime_x870_p_csm",
+        "product_name": "PRIME-X870-P-CSM",
+        "brand": "ASUS",
+        "series": "PRIME",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "Mainstream",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 22275.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_prime_x870_p_wifi_csm",
+        "product_name": "PRIME X870-P-WIFI CSM",
+        "brand": "ASUS",
+        "series": "PRIME",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "Mainstream",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 23775.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_tuf_gaming_x870_plus_wifi",
+        "product_name": "TUF-GAMING-X870-PLUS-WIFi",
+        "brand": "ASUS",
+        "series": "TUF",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 29000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_rog_strix_x870_a_gaming_wifi",
+        "product_name": "ROG STRIX-X870-A-GAMING-WIFI",
+        "brand": "ASUS",
+        "series": "ROG",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 34900.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_strix_x870_i_g_wf",
+        "product_name": "STRIX-X870-I-G-WF",
+        "brand": "ASUS",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 38500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_proart_x870e_creator_wifi",
+        "product_name": "PROART X870E CREATOR-WIFI",
+        "brand": "ASUS",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "Professional",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 43000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_rog_strix_x870e_e_gaming_wifi",
+        "product_name": "ROG STRIX-X870E-E-GAMING-WIFI",
+        "brand": "ASUS",
+        "series": "ROG",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 44510.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_rog_crosshair_x870e_hero",
+        "product_name": "ROG CROSSHAIR X870E HERO",
+        "brand": "ASUS",
+        "series": "ROG",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 55500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_prime_b840m_a_csm",
+        "product_name": "PRIME B840M-A-CSM",
+        "brand": "ASUS",
+        "series": "PRIME",
+        "category": "Motherboard",
+        "chipset": "B840",
+        "sub_category": "Mainstream",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 14250.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_prime_b840m_a_wifi_csm",
+        "product_name": "PRIME B840M-A WIFI-CSM",
+        "brand": "ASUS",
+        "series": "PRIME",
+        "category": "Motherboard",
+        "chipset": "B840",
+        "sub_category": "Mainstream",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 15515.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_prime_b840_plus_wifi_csm",
+        "product_name": "PRIME B840-PLUS WIFI-CSM",
+        "brand": "ASUS",
+        "series": "PRIME",
+        "category": "Motherboard",
+        "chipset": "B840",
+        "sub_category": "Mainstream",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 17210.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_strix_b850_a_gaming_wifi",
+        "product_name": "STRIX B850-A GAMING WIFI",
+        "brand": "ASUS",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 24000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_strix_b850_f_gaming_wifi",
+        "product_name": "STRIX B850-F GAMING WIFI",
+        "brand": "ASUS",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 26000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_strix_b850_i_gaming_wifi",
+        "product_name": "STRIX B850-I GAMING WIFI",
+        "brand": "ASUS",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 27900.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_tuf_gaming_b850m_plus",
+        "product_name": "TUF GAMING B850M-PLUS",
+        "brand": "ASUS",
+        "series": "TUF",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 18500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_tuf_gaming_b850m_plus_wifi",
+        "product_name": "TUF GAMING B850M-PLUS WIFI",
+        "brand": "ASUS",
+        "series": "TUF",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 19800.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_asus_tuf_gaming_b850_plus_wifi",
+        "product_name": "TUF GAMING B850-PLUS WIFI",
+        "brand": "ASUS",
+        "series": "TUF",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Gaming",
+        "manufacturer": "ASUS",
+        "prices": {
+            "dealer": 20900.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_x870_e_tomahawk_wifi",
+        "product_name": "MAG X870 E TOMAHAWK WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 29000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_x870_tomahawk_wifi",
+        "product_name": "MAG X870 TOMAHAWK WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 28500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mpg_x870e_carbon_wifi",
+        "product_name": "MPG X870E CARBON WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 38500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mpg_x870e_edge_ti_wifi",
+        "product_name": "MPG X870E EDGE TI WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 31500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_pro_x870e_p_wifi",
+        "product_name": "PRO X870E-P WIFI",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 19000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_pro_x870_p_wifi",
+        "product_name": "PRO X870-P WIFI",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 18000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_x870_gaming_plus_wiif",
+        "product_name": "X870 GAMING PLUS WIIF",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 19750.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_x870e_gaming_plus_wiif",
+        "product_name": "X870E GAMING PLUS WIIF",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "X870E",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 20300.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mpg_b850_edge_ti",
+        "product_name": "MPG B850 EDGE TI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 22000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mpg_b850i_edge_ti_wi_fi",
+        "product_name": "MPG B850I EDGE TI WI-FI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 19000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_b850_tomhawk_max_wifi",
+        "product_name": "MAG B850 TOMHAWK MAX WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 19300.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_b850_tomhawk_wifi",
+        "product_name": "MAG B850 TOMHAWK  WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 18300.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_gaming_plus_wifi_7",
+        "product_name": "B850 M GAMING PLUS WIFI-7",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 16200.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_gaming_pro_wifi_wifi_6e",
+        "product_name": "B850  M GAMING PRO WIFI WIFI 6E",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 12200.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_gaming_plus_wifi_6e",
+        "product_name": "B850 M GAMING PLUS WIFI 6E",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 12600.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_gamign_plus_wiif_wifi_6e",
+        "product_name": "B850 GAMIGN PLUS WIIF WIFI 6E",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 13800.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_gaming_plus_wifi_wifi_7",
+        "product_name": "B850 GAMING PLUS WIFI WIFI-7",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 17500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_gaming_pro_wifi_wifi_6e",
+        "product_name": "B850 GAMING PRO WIFI WIFI 6E",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 13800.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850m_mortar_wifi",
+        "product_name": "B850M MORTAR WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 17700.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_p",
+        "product_name": "B850 M P",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 10700.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_p_wifi",
+        "product_name": "B850 M P WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 13500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_m_a_wifi",
+        "product_name": "B850 M A WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 15500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_p_wifi",
+        "product_name": "B850 P WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 16700.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_pro_b850m_g",
+        "product_name": "PRO B850M-G",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 10000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_pro_b850_s_wifi_6e",
+        "product_name": "PRO B850-S WIFI 6E",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 13000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b850_mlg_edition",
+        "product_name": "B850 MLG EDITION",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B850",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 22500.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b840_gaming_plus_wifi",
+        "product_name": "B840 GAMING PLUS WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "B840",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 12800.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_pro_b840_p_wifi",
+        "product_name": "PRO B840-P WIFI",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "B840",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 12300.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_b550_tomahawk_max_wifi",
+        "product_name": "MAG B550 TOMAHAWK MAX WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 14300.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mag_b550m_mortar_max_wifi",
+        "product_name": "MAG B550M MORTAR MAX WIFI",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 12000.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_mpg_b550_gaming_plus",
+        "product_name": "MPG B550 GAMING PLUS",
+        "brand": "MSI",
+        "series": "",
+        "category": "Motherboard",
+        "chipset": "",
+        "sub_category": "",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 11200.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b550m_pro_vdh_wifi",
+        "product_name": "B550M PRO-VDH WIFI",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 7700.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    },
+    {
+        "id": "mo_msi_b450m_a_pro_max_ii",
+        "product_name": "B450M-A PRO MAX II",
+        "brand": "MSI",
+        "series": "PRO",
+        "category": "Motherboard",
+        "chipset": "",
+        "sub_category": "Professional",
+        "manufacturer": "MSI",
+        "prices": {
+            "dealer": 4950.0,
+            "disti": 0.0,
+            "imp": 0.0
+        }
+    }
+]

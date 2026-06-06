@@ -2,7 +2,6 @@
 Service for generating hardware recommendations based on compatibility and tier lists.
 """
 import logging
-import math
 from services.search_service import SearchService
 from services.catalog_loader import get_catalog
 
@@ -19,12 +18,16 @@ class RecommendationService:
         
         # Chipset hierarchy mapping to tiers
         self.chipset_hierarchy = {
-            "X870E": "Premium",
-            "X870": "Premium",
-            "B850": "Mid-range",
-            "B840": "Budget",
-            "B550": "Budget",
-            "A520": "Budget"
+            "X870E": "Recommended Premium Choice",
+            "X870": "Recommended Premium Choice",
+            "X670E": "Recommended Premium Choice",
+            "X670": "Recommended Premium Choice",
+            "B850": "Recommended Performance Choice",
+            "B650": "Recommended Performance Choice",
+            "B840": "Recommended Value Choice",
+            "B550": "Recommended Value Choice",
+            "A620": "Recommended Value Choice",
+            "A520": "Recommended Value Choice"
         }
 
     def _determine_chipset(self, product_name: str, extracted_chipset: str) -> str:
@@ -32,7 +35,6 @@ class RecommendationService:
         name_upper = product_name.upper()
         extracted_upper = str(extracted_chipset).upper()
         
-        # Sort by length descending to match X870E before X870
         for chipset in sorted(self.chipset_hierarchy.keys(), key=len, reverse=True):
             if chipset in name_upper or chipset == extracted_upper:
                 return chipset
@@ -40,7 +42,7 @@ class RecommendationService:
 
     def recommend_product(self, cpu_name: str) -> dict:
         """
-        Recommends a Budget, Mid-range, and Premium motherboard for a given CPU.
+        Recommends a Premium, Performance, and Value motherboard for a given CPU.
         """
         logger.info(f"Generating recommendations for CPU: {cpu_name}")
         
@@ -50,14 +52,14 @@ class RecommendationService:
             logger.warning(f"CPU not found or ambiguous: {cpu_name}")
             return {
                 "status": "error",
-                "message": "CPU not found in catalog.",
+                "message": "CPU not found in catalog or ambiguous.",
                 "search_result": cpu_res
             }
             
         cpu = cpu_res["product"]
         cpu_name_upper = str(cpu.get("product_name", "")).upper()
         
-        # Basic AMD Socket AM5 vs AM4 heuristic (to avoid incompatible recommendations)
+        # Basic AMD Socket AM5 vs AM4 heuristic
         import re
         is_am5 = bool(re.search(r'(?:7|8|9)\d{3}', cpu_name_upper) or "X3D" in cpu_name_upper)
         
@@ -65,9 +67,9 @@ class RecommendationService:
         all_mbs = [p for p in self.catalog if str(p.get("category", "")).upper() == "MOTHERBOARD"]
         
         tiers = {
-            "Premium": [],
-            "Mid-range": [],
-            "Budget": []
+            "Recommended Premium Choice": [],
+            "Recommended Performance Choice": [],
+            "Recommended Value Choice": []
         }
         
         for mb in all_mbs:
@@ -78,34 +80,37 @@ class RecommendationService:
             # Filter compatibility
             if is_am5 and chipset in ["B550", "A520"]:
                 continue
-            if not is_am5 and chipset in ["X870E", "X870", "B850", "B840"]:
+            if not is_am5 and chipset in ["X870E", "X870", "B850", "B840", "X670", "B650", "A620"]:
                 continue
                 
             tier = self.chipset_hierarchy[chipset]
             
             # Calculate min price for sorting
-            prices = [p for p in mb.get("price_data", {}).values() if not math.isnan(p)]
+            prices = [p for p in mb.get("prices", {}).values() if p > 0]
             if prices:
                 mb_copy = dict(mb)
                 mb_copy["_min_price"] = min(prices)
                 tiers[tier].append(mb_copy)
                 
         # 3. Pick the best recommendation for each tier
-        recommendations = {
-            "Budget": None,
-            "Mid-range": None,
-            "Premium": None
-        }
+        # We order it specifically: Premium first, then Performance, then Value
+        recommendations = {}
         
-        for tier_name, mb_list in tiers.items():
+        ordered_tiers = [
+            "Recommended Premium Choice",
+            "Recommended Performance Choice",
+            "Recommended Value Choice"
+        ]
+        
+        for tier_name in ordered_tiers:
+            mb_list = tiers[tier_name]
             if not mb_list:
+                recommendations[tier_name] = None
                 continue
                 
-            # Sort by price ascending. We recommend the most affordable board in that specific tier.
+            # Sort by price ascending within the tier
             mb_list.sort(key=lambda x: x["_min_price"])
             best_mb = mb_list[0]
-            
-            # Clean internal key
             del best_mb["_min_price"]
             recommendations[tier_name] = best_mb
             
@@ -113,4 +118,37 @@ class RecommendationService:
             "status": "success",
             "cpu": cpu,
             "recommendations": recommendations
+        }
+
+    def get_related_products(self, product_name: str) -> dict:
+        """
+        Finds related products based on series or chipset.
+        """
+        logger.info(f"Finding related products for: {product_name}")
+        res = self.search_service.search_product(product_name)
+        if res["status"] not in ["exact_match", "likely_match"]:
+            return {"status": "error", "message": "Product not found or ambiguous."}
+            
+        product = res["product"]
+        series = product.get("series")
+        chipset = product.get("chipset")
+        category = product.get("category")
+        
+        related = []
+        for item in self.catalog:
+            if item.get("id") == product.get("id"):
+                continue
+                
+            # Match by series (e.g. other ROG boards)
+            if series and item.get("series") == series and item.get("category") == category:
+                related.append(item)
+            # Or match by chipset if no series
+            elif chipset and not series and item.get("chipset") == chipset:
+                related.append(item)
+                
+        # Return top 5 related
+        return {
+            "status": "success",
+            "base_product": product,
+            "related_products": related[:5]
         }

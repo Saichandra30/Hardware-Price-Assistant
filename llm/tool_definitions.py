@@ -5,29 +5,29 @@ from services.search_service import SearchService
 from services.recommendation_service import RecommendationService
 
 class ToolManager:
-    """Manager for Gemini Function Calling Tools."""
+    """Manager for Gemini and Groq Function Calling Tools."""
     
     def __init__(self):
         self.search_service = SearchService()
         self.rec_service = RecommendationService()
         
-    def exact_lookup(self, product_name: str) -> dict:
+    def lookup_product(self, exact_name: str) -> dict:
         """
         Finds a product by its exact name. Use when you know the exact model name.
         """
-        if not isinstance(product_name, str):
-            return {"error": "Invalid parameter type: product_name must be a string."}
+        if not isinstance(exact_name, str):
+            return {"error": "Invalid parameter type."}
         try:
-            return self.search_service.exact_lookup(str(product_name).strip()[:200])
+            return self.search_service.exact_lookup(str(exact_name).strip()[:200])
         except Exception:
             return {"error": "Internal processing error."}
 
-    def search_product(self, query: str) -> dict:
+    def search_products(self, query: str) -> dict:
         """
         Searches for a product using fuzzy matching. Use this for general product queries to find hardware availability and prices.
         """
         if not isinstance(query, str):
-            return {"error": "Invalid parameter type: query must be a string."}
+            return {"error": "Invalid parameter type."}
         try:
             return self.search_service.search_product(str(query).strip()[:200])
         except Exception:
@@ -38,58 +38,59 @@ class ToolManager:
         Compares two products by finding their best matches in the catalog.
         """
         if not isinstance(product1, str) or not isinstance(product2, str):
-            return {"error": "Invalid parameter types: product names must be strings."}
+            return {"error": "Invalid parameter types."}
         try:
             return self.search_service.compare_products(str(product1).strip()[:200], str(product2).strip()[:200])
         except Exception:
             return {"error": "Internal processing error."}
 
-    def filter_products(self, category: str = "", brand: str = "", chipset: str = "", max_price: float = 0.0) -> dict:
+    def recommend_products(self, base_product: str) -> dict:
         """
-        Filters products based on specific criteria. Pass empty strings for unused string filters and 0.0 for unused price filter.
+        Recommends Premium, Performance, and Value products based on a base product (like a CPU).
         """
-        if not isinstance(category, str) or not isinstance(brand, str) or not isinstance(chipset, str) or not isinstance(max_price, (int, float)):
-            return {"error": "Invalid parameter types."}
+        if not isinstance(base_product, str):
+            return {"error": "Invalid parameter type."}
         try:
-            ca = str(category).strip()[:50] if category else None
-            b = str(brand).strip()[:100] if brand else None
-            c = str(chipset).strip()[:50] if chipset else None
-            m = float(max_price) if float(max_price) > 0 else None
-            return self.search_service.filter_products(category=ca, brand=b, chipset=c, max_price=m)
+            return self.rec_service.recommend_product(str(base_product).strip()[:200])
+        except Exception:
+            return {"error": "Internal processing error."}
+            
+    def find_alternatives(self, product_name: str) -> dict:
+        """
+        Finds alternatives in the same category and chipset as the given product.
+        """
+        if not isinstance(product_name, str):
+            return {"error": "Invalid parameter type."}
+        try:
+            res = self.search_service.search_product(str(product_name).strip()[:200])
+            if res["status"] in ["exact_match", "likely_match"]:
+                cat = res["product"].get("category")
+                chip = res["product"].get("chipset")
+                return self.search_service.filter_products(category=cat, chipset=chip)
+            return {"error": "Product not found to find alternatives for."}
+        except Exception:
+            return {"error": "Internal processing error."}
+            
+    def get_related_products(self, product_name: str) -> dict:
+        """
+        Finds related products based on product hierarchy (e.g. same series).
+        """
+        if not isinstance(product_name, str):
+            return {"error": "Invalid parameter type."}
+        try:
+            return self.rec_service.get_related_products(str(product_name).strip()[:200])
         except Exception:
             return {"error": "Internal processing error."}
 
-    def get_cheapest(self, category: str) -> dict:
-        """
-        Gets the cheapest product in a specific category (e.g., 'CPU' or 'Motherboard').
-        """
-        if not isinstance(category, str):
-            return {"error": "Invalid parameter type: category must be a string."}
-        try:
-            return self.search_service.get_cheapest(str(category).strip()[:50])
-        except Exception:
-            return {"error": "Internal processing error."}
-
-    def recommend_product(self, cpu_name: str) -> dict:
-        """
-        Recommends a Budget, Mid-range, and Premium motherboard for a given CPU.
-        """
-        if not isinstance(cpu_name, str):
-            return {"error": "Invalid parameter type: cpu_name must be a string."}
-        try:
-            return self.rec_service.recommend_product(str(cpu_name).strip()[:200])
-        except Exception:
-            return {"error": "Internal processing error."}
-        
     def get_callable_tools(self) -> list:
         """Returns a list of callable tool functions."""
         return [
-            self.exact_lookup,
-            self.search_product,
+            self.lookup_product,
+            self.search_products,
             self.compare_products,
-            self.filter_products,
-            self.get_cheapest,
-            self.recommend_product
+            self.recommend_products,
+            self.find_alternatives,
+            self.get_related_products
         ]
 
     def get_groq_tools(self) -> list:
@@ -98,25 +99,25 @@ class ToolManager:
             {
                 "type": "function",
                 "function": {
-                    "name": "exact_lookup",
+                    "name": "lookup_product",
                     "description": "Finds a product by its exact name. Use when you know the exact model name.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "product_name": {
+                            "exact_name": {
                                 "type": "string",
                                 "description": "The exact name of the product."
                             }
                         },
-                        "required": ["product_name"]
+                        "required": ["exact_name"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "search_product",
-                    "description": "Searches for a product using fuzzy matching. Use this for general product queries to find hardware availability and prices.",
+                    "name": "search_products",
+                    "description": "Searches for a product. Use this for general product queries to find hardware availability and prices.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -153,62 +154,51 @@ class ToolManager:
             {
                 "type": "function",
                 "function": {
-                    "name": "filter_products",
-                    "description": "Filters products based on specific criteria. Omit fields you don't want to filter by.",
+                    "name": "recommend_products",
+                    "description": "Recommends Premium, Performance, and Value products based on a base product.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "category": {
+                            "base_product": {
                                 "type": "string",
-                                "description": "The category name to filter by (e.g., 'CPU', 'Motherboard')."
-                            },
-                            "brand": {
-                                "type": "string",
-                                "description": "The brand name to filter by (e.g., 'MSI', 'AMD')."
-                            },
-                            "chipset": {
-                                "type": "string",
-                                "description": "The chipset to filter by (e.g., 'B850', 'X870')."
-                            },
-                            "max_price": {
-                                "type": "number",
-                                "description": "The maximum price limit."
+                                "description": "The name of the base product."
                             }
-                        }
+                        },
+                        "required": ["base_product"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "get_cheapest",
-                    "description": "Gets the cheapest product in a specific category (e.g., 'CPU' or 'Motherboard').",
+                    "name": "find_alternatives",
+                    "description": "Finds alternative products in the same category and chipset.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "category": {
+                            "product_name": {
                                 "type": "string",
-                                "description": "The category name (e.g., 'Motherboard' or 'CPU')."
+                                "description": "The name of the product to find alternatives for."
                             }
                         },
-                        "required": ["category"]
+                        "required": ["product_name"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "recommend_product",
-                    "description": "Recommends a Budget, Mid-range, and Premium motherboard for a given CPU.",
+                    "name": "get_related_products",
+                    "description": "Finds related products based on product hierarchy and series.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "cpu_name": {
+                            "product_name": {
                                 "type": "string",
-                                "description": "The name of the CPU you need motherboard recommendations for."
+                                "description": "The name of the product to find related items for."
                             }
                         },
-                        "required": ["cpu_name"]
+                        "required": ["product_name"]
                     }
                 }
             }
