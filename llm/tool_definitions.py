@@ -82,7 +82,7 @@ class ToolManager:
         except Exception:
             return {"error": "Internal processing error."}
 
-    def get_catalog_stats(self) -> dict:
+    def get_catalog_stats(self, query: str = "") -> dict:
         """
         Returns summary statistics about the catalog, including total number of products, available brands, and categories.
         """
