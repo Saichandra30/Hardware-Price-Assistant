@@ -122,6 +122,8 @@ class GeminiClient:
                     for function_call in response.function_calls:
                         func_name = function_call.name
                         args = function_call.args
+                        if args is None:
+                            args = {}
                         
                         logger.info(f"LLM called tool: {func_name}")
                         audit_logger.info(f"TOOL EXECUTION: {func_name} with args: {args}")

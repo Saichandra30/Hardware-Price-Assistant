@@ -132,6 +132,8 @@ class GroqClient:
                             func_name = tool_call.function.name
                             try:
                                 args = json.loads(tool_call.function.arguments)
+                                if args is None:
+                                    args = {}
                             except json.JSONDecodeError:
                                 args = {}
                                 
