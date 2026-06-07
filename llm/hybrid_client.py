@@ -179,6 +179,8 @@ class HybridClient:
                         category_arg = args.get("category")
                         series_arg   = args.get("series")
                         subcat_arg   = args.get("sub_category")
+                        name_arg     = args.get("name_contains")
+                        max_price_arg = args.get("max_price")
                         tool_type    = args.get("tool_type", "brand")
 
                         result = self.tool_manager.search_service.filter_products(
@@ -186,27 +188,36 @@ class HybridClient:
                             chipset=chipset_arg,
                             category=category_arg if category_arg else None,
                             series=series_arg,
-                            sub_category=subcat_arg
+                            sub_category=subcat_arg,
+                            name_contains=name_arg,
+                            max_price=max_price_arg
                         )
                         event = {"type": "tool_result", "func_name": "filter_products", "data": result}
                         components_executed.append(event)
                         yield event
 
                         count = result.get("count", 0)
-                        # Build a human-readable label
-                        label = (
-                            (chipset_arg or brand_arg or series_arg or subcat_arg or category_arg or "")
-                        ).upper()
+                        # Build label describing what was filtered
+                        label_parts = []
+                        if brand_arg: label_parts.append(brand_arg.upper())
+                        if chipset_arg: label_parts.append(chipset_arg.upper())
+                        if series_arg: label_parts.append(series_arg.upper())
+                        if subcat_arg: label_parts.append(subcat_arg.capitalize())
+                        if name_arg: label_parts.append(f"with {name_arg}")
+                        if max_price_arg: label_parts.append(f"under Rs{max_price_arg:,.0f}")
+                        if category_arg: label_parts.append(category_arg.capitalize())
+                        label = " ".join(label_parts) if label_parts else "matching"
+
                         if count > 0:
                             final_text = (
-                                f"I found **{count} products** matching **{label}**. "
-                                f"Here are the results — let me know if you'd like to "
-                                f"compare, check prices, or get a recommendation!"
+                                f"I found **{count} products** — **{label}**. "
+                                f"Here are the results! Let me know if you'd like to "
+                                f"compare, check prices, or get a recommendation."
                             )
                         else:
                             final_text = (
-                                f"I couldn't find any products matching **{label}**. "
-                                f"Try a broader search or check the spelling."
+                                f"No products found matching **{label}**. "
+                                f"Try relaxing the filters — for example, a higher budget or a different brand."
                             )
 
                     else:
