@@ -89,95 +89,109 @@ class FastIntentRouter:
                 cat_query = "am4 motherboard"
             return {"tool": "get_cheapest", "args": {"category": cat_query}}
 
-        # 5b. Price-filtered queries: "MSI boards under 20000", "WiFi boards under 25k"
-        price_match = re.search(
-            r'(?:under|below|less than|max|upto|up to|around|approx|near|budget|for|at|within|of)\s*(?:rs\.?\s*|inr\s*)?\b(\d+)(?:k|000)?\b',
-            query_clean
-        )
-        if price_match:
-            raw_num = int(price_match.group(1))
-            # Handle shorthand: if number < 1000, treat as thousands (e.g. "20k" = 20000)
-            max_price = raw_num * 1000 if raw_num < 1000 else float(raw_num)
+        # Check if the query is a comparison, compatibility, or recommendation request, and if so let the LLM handle it.
+        comparison_kws = {"vs", "compare", "comparison", "better", "choose", "worth"}
+        compatibility_kws = {"compatible", "compatibility", "support", "supports", "pair", "pairs", "combo", "fit", "use"}
+        recommendation_kws = {"best", "recommend", "recommendation", "recommendations", "suggest", "suggestion", "suggestions", "top", "budget"}
+        query_words = set(query_clean.split())
+        if query_words.intersection(comparison_kws) or query_words.intersection(compatibility_kws) or query_words.intersection(recommendation_kws):
+            pass
+        else:
+            # 5b. Price-filtered queries: "MSI boards under 20000", "WiFi boards under 25k"
+            price_match = re.search(
+                r'(?:under|below|less than|max|upto|up to|around|approx|near|budget|for|at|within|of)\s*(?:rs\.?\s*|inr\s*)?\b(\d+)(?:k|000)?\b',
+                query_clean
+            )
+            if price_match:
+                raw_num = int(price_match.group(1))
+                # Handle shorthand: if number < 1000, treat as thousands (e.g. "20k" = 20000)
+                max_price = raw_num * 1000 if raw_num < 1000 else float(raw_num)
 
-            # Extract brand, chipset, sub_category, name_contains from the rest of the query
-            filter_args: dict = {"max_price": max_price, "tool_type": "price_filter"}
+                # Extract brand, chipset, sub_category, name_contains from the rest of the query
+                filter_args: dict = {"max_price": max_price, "tool_type": "price_filter"}
 
-            q_stripped = price_match.string[:price_match.start()].strip()
+                q_stripped = price_match.string[:price_match.start()].strip()
 
-            brand_map = {"msi": "MSI", "asus": "ASUS", "amd": "AMD"}
-            for bkw, bval in brand_map.items():
-                if bkw in q_stripped:
-                    filter_args["brand"] = bval
-                    break
+                brand_map = {"msi": "MSI", "asus": "ASUS", "amd": "AMD"}
+                for bkw, bval in brand_map.items():
+                    if bkw in q_stripped:
+                        filter_args["brand"] = bval
+                        break
 
-            chipset_patterns = ["x870e", "x870", "b850", "b840", "x670", "b650"]
-            for cp in chipset_patterns:
-                if cp in q_stripped:
-                    filter_args["chipset"] = cp.upper()
-                    break
+                chipset_patterns = ["x870e", "x870", "b850", "b840", "x670", "b650"]
+                for cp in chipset_patterns:
+                    if cp in q_stripped:
+                        filter_args["chipset"] = cp.upper()
+                        break
 
-            series_map = {"rog": "ROG", "tuf": "TUF", "prime": "PRIME", "pro": "PRO"}
-            for skw, sval in series_map.items():
-                if skw in q_stripped:
-                    filter_args["series"] = sval
-                    # Automatically map brand ASUS/MSI for series when possible
-                    if sval in ["ROG", "TUF", "PRIME"]:
-                        filter_args["brand"] = "ASUS"
-                    elif sval == "PRO" and not filter_args.get("brand"):
-                        # PRO series exist on MSI/ASUS, let it search generally unless brand is specified
-                        pass
-                    break
+                series_map = {"rog": "ROG", "tuf": "TUF", "prime": "PRIME", "pro": "PRO"}
+                for skw, sval in series_map.items():
+                    if skw in q_stripped:
+                        filter_args["series"] = sval
+                        # Automatically map brand ASUS/MSI for series when possible
+                        if sval in ["ROG", "TUF", "PRIME"]:
+                            filter_args["brand"] = "ASUS"
+                        elif sval == "PRO" and not filter_args.get("brand"):
+                            # PRO series exist on MSI/ASUS, let it search generally unless brand is specified
+                            pass
+                        break
 
-            if "wifi" in q_stripped:
-                filter_args["name_contains"] = "WIFI"
+                if "wifi" in q_stripped:
+                    filter_args["name_contains"] = "WIFI"
 
-            if "gaming" in q_stripped:
-                filter_args["sub_category"] = "Gaming"
+                if "gaming" in q_stripped:
+                    filter_args["sub_category"] = "Gaming"
 
-            # Always filter to motherboards for board/motherboard queries or ROG/TUF series motherboard queries
-            if any(kw in q_stripped for kw in ["board", "motherboard", "mobo", "rog", "tuf", "prime"]):
-                filter_args["category"] = "Motherboard"
+                # Always filter to motherboards for board/motherboard queries or ROG/TUF series motherboard queries
+                if any(kw in q_stripped for kw in ["board", "motherboard", "mobo", "rog", "tuf", "prime"]):
+                    filter_args["category"] = "Motherboard"
 
-            return {"tool": "filter_products", "args": filter_args}
-
-        # 4.5. List/Show query routing rule
-        list_keywords = {"show", "list", "have", "all", "display", "view", "products", "boards", "motherboards", "mobos", "cpus", "processors", "options"}
-        words = set(query_clean.split())
-        if words.intersection(list_keywords):
-            filter_args = {}
-            
-            # Brand extraction
-            brand_map = {"msi": "MSI", "asus": "ASUS", "amd": "AMD"}
-            for bkw, bval in brand_map.items():
-                if bkw in query_clean:
-                    filter_args["brand"] = bval
-                    break
-                    
-            # Chipset extraction
-            chipset_patterns = ["x870e", "x870", "b850", "b840", "x670", "b650", "a620"]
-            for cp in chipset_patterns:
-                if cp in query_clean:
-                    filter_args["chipset"] = cp.upper()
-                    break
-                    
-            # Series extraction
-            series_map = {"rog": "ROG", "tuf": "TUF", "prime": "PRIME", "pro": "PRO", "proart": "PROART"}
-            for skw, sval in series_map.items():
-                if re.search(r'\b' + re.escape(skw) + r'\b', query_clean):
-                    filter_args["series"] = sval
-                    if sval in ["ROG", "TUF", "PRIME", "PROART"]:
-                        filter_args["brand"] = "ASUS"
-                    break
-                    
-            # Category extraction
-            if any(kw in query_clean for kw in ["board", "motherboard", "mobo", "boards", "motherboards", "mobos"]):
-                filter_args["category"] = "Motherboard"
-            elif any(kw in query_clean for kw in ["cpu", "cpus", "processor", "processors"]):
-                filter_args["category"] = "CPU"
-                
-            if any(k in filter_args for k in ["brand", "chipset", "series", "category"]):
-                filter_args["tool_type"] = "list"
                 return {"tool": "filter_products", "args": filter_args}
+
+            # 4.5. List/Show query routing rule
+            list_keywords = {"show", "list", "have", "all", "display", "view", "products", "boards", "motherboard", "motherboards", "mobo", "mobos", "cpu", "cpus", "processor", "processors", "options"}
+            words = set(query_clean.split())
+            if words.intersection(list_keywords):
+                filter_args = {}
+                
+                # Brand extraction
+                brand_map = {"msi": "MSI", "asus": "ASUS", "amd": "AMD"}
+                for bkw, bval in brand_map.items():
+                    if bkw in query_clean:
+                        filter_args["brand"] = bval
+                        break
+                        
+                # Chipset extraction
+                chipset_patterns = ["x870e", "x870", "b850", "b840", "x670", "b650", "a620"]
+                for cp in chipset_patterns:
+                    if cp in query_clean:
+                        filter_args["chipset"] = cp.upper()
+                        break
+                        
+                # Series extraction
+                series_map = {"rog": "ROG", "tuf": "TUF", "prime": "PRIME", "pro": "PRO", "proart": "PROART"}
+                for skw, sval in series_map.items():
+                    if re.search(r'\b' + re.escape(skw) + r'\b', query_clean):
+                        filter_args["series"] = sval
+                        if sval in ["ROG", "TUF", "PRIME", "PROART"]:
+                            filter_args["brand"] = "ASUS"
+                        break
+                        
+                # Category extraction
+                if any(kw in query_clean for kw in ["board", "motherboard", "mobo", "boards", "motherboards", "mobos"]):
+                    filter_args["category"] = "Motherboard"
+                elif any(kw in query_clean for kw in ["cpu", "cpus", "processor", "processors"]):
+                    filter_args["category"] = "CPU"
+
+                if "wifi" in query_clean:
+                    filter_args["name_contains"] = "WIFI"
+
+                if "gaming" in query_clean:
+                    filter_args["sub_category"] = "Gaming"
+                    
+                if any(k in filter_args for k in ["brand", "chipset", "series", "category", "name_contains", "sub_category"]):
+                    filter_args["tool_type"] = "list"
+                    return {"tool": "filter_products", "args": filter_args}
 
         # 5. Spaceless & hyphenless exact match check
         query_spaceless = query_clean.replace(" ", "").replace("-", "")
