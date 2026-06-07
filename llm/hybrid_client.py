@@ -101,8 +101,8 @@ class HybridClient:
                     else:
                         final_text = f"I'm sorry, I couldn't find any products in the category '{args.get('category')}'."
                         
-                elif tool_name == "search_product":
-                    result = self.tool_manager.search_product(args.get("query"))
+                elif tool_name == "search_products":
+                    result = self.tool_manager.search_products(args.get("query"))
                     event = {"type": "tool_result", "func_name": "search_products", "data": result}
                     components_executed.append(event)
                     yield event
@@ -110,6 +110,8 @@ class HybridClient:
                         final_text = f"Here is the exact match I found for '{args.get('query')}':"
                     elif result.get("status") == "likely_match":
                         final_text = f"I found a close match for '{args.get('query')}':"
+                    elif result.get("status") == "ask_clarification":
+                        final_text = result.get("message", f"I found multiple matches. Could you be more specific?")
                     else:
                         final_text = f"I'm sorry, I couldn't find exactly '{args.get('query')}'. Could you be more specific?"
                         

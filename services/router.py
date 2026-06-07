@@ -66,32 +66,32 @@ class FastIntentRouter:
         if query_clean in self.search_service.product_index:
             return {
                 "tool": "search_products",
-                "args": {"query": query_clean}
+                "args": {"query": query}
             }
             
         if query_clean in self.search_service.brand_index:
             return {
                 "tool": "search_products",
-                "args": {"query": query_clean}
+                "args": {"query": query}
             }
             
         if query_clean in self.search_service.chipset_index:
             return {
                 "tool": "search_products",
-                "args": {"query": query_clean}
+                "args": {"query": query}
             }
             
         if query_clean in self.search_service.category_index:
             return {
                 "tool": "search_products",
-                "args": {"query": query_clean}
+                "args": {"query": query}
             }
             
         for alias in self.search_service.alias_index:
             if alias == query_clean:
                 return {
                     "tool": "search_products",
-                    "args": {"query": query_clean}
+                    "args": {"query": query}
                 }
         
         logger.info(f"Router did not find deterministic match for: {query}")

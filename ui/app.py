@@ -66,6 +66,11 @@ def render_tool_result(event: dict) -> None:
     if func in ["search_products", "lookup_product", "get_cheapest"]:
         if data.get("status") in ["success", "exact_match", "likely_match"] and data.get("product"):
             render_product_card(data["product"])
+        
+        if data.get("status") in ["ask_clarification", "likely_match"] and data.get("suggestions"):
+            st.markdown(f"**Suggestions:**")
+            for p in data["suggestions"][:5]:
+                render_product_card(p)
             
     elif func == "compare_products":
         if data.get("status") == "success":
