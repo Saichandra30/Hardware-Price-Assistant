@@ -127,6 +127,71 @@ class SearchService:
             "product": None
         }
 
+    def _adjust_score(self, query: str, item: dict, base_score: float) -> float:
+        import re
+        q = query.lower()
+        
+        brand = str(item.get("brand", "")).lower()
+        chipset = str(item.get("chipset", "")).lower()
+        series = str(item.get("series", "")).lower()
+        category = str(item.get("category", "")).lower()
+        product_name = str(item.get("product_name", "")).lower()
+        
+        score = base_score
+        
+        # 1. Brand match/mismatch
+        brands = ["msi", "asus", "amd"]
+        for b in brands:
+            if b in q:
+                if brand == b:
+                    score += 10
+                else:
+                    score -= 50
+                    
+        # 2. Chipset match/mismatch
+        chipsets = ["x870e", "x870", "b850", "b840", "x670", "b650", "a620"]
+        query_has_chipset = False
+        product_matches_chipset = False
+        for c in chipsets:
+            if c in q:
+                query_has_chipset = True
+                if chipset == c:
+                    product_matches_chipset = True
+                    break
+        if query_has_chipset:
+            if product_matches_chipset:
+                score += 15
+            else:
+                score -= 30
+                
+        # 3. Series match/mismatch
+        series_list = ["rog", "tuf", "prime", "proart"]
+        query_has_series = False
+        product_matches_series = False
+        for s in series_list:
+            if s in q:
+                query_has_series = True
+                if series == s:
+                    product_matches_series = True
+                    break
+        # Special check for "pro" word
+        if not query_has_series and re.search(r'\bpro\b', q):
+            query_has_series = True
+            if series == "pro":
+                product_matches_series = True
+                
+        if query_has_series:
+            if product_matches_series:
+                score += 10
+            else:
+                score -= 20
+                
+        # 4. Exact word match for CPU names
+        if category == "cpu" and product_name in q:
+            score += 20
+            
+        return max(0.0, min(100.0, score))
+
     @functools.lru_cache(maxsize=512)
     def _fuzzy_match(self, term: str) -> list:
         """Cached fuzzy match logic."""
@@ -143,6 +208,8 @@ class SearchService:
             return {"status": "error", "message": "Catalog is empty."}
 
         query_clean = str(query).strip().lower()
+        # Clean typos and specific variations
+        query_clean = query_clean.replace("morter", "mortar").replace("wiif", "wifi").replace("9700xx", "9700x")
         
         # 0. Check O(1) precise intent routing mappings
         if query_clean in self.brand_index:
@@ -190,9 +257,10 @@ class SearchService:
         for term in search_terms:
             results = self._fuzzy_match(term)
             for res_str, score, idx in results:
-                all_results.append((res_str, score, idx))
-                if score > best_overall_score:
-                    best_overall_score = score
+                adjusted = self._adjust_score(query_clean, self.catalog[idx], score)
+                all_results.append((res_str, adjusted, idx))
+                if adjusted > best_overall_score:
+                    best_overall_score = adjusted
                     best_overall_index = idx
                     
         if best_overall_index == -1:

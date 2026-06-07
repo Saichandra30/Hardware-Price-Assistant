@@ -26,6 +26,8 @@ class FastIntentRouter:
         The 'tool_type' field in args hints to hybrid_client how to phrase the response.
         """
         query_clean = str(query).strip().lower()
+        # Clean typos and key variations
+        query_clean = query_clean.replace("morter", "mortar").replace("wiif", "wifi").replace("9700xx", "9700x")
         query_clean = re.sub(r'[^\w\s-]', '', query_clean).strip()
         
         # 1. Greetings → hardcoded bypass
@@ -137,6 +139,62 @@ class FastIntentRouter:
                 filter_args["category"] = "Motherboard"
 
             return {"tool": "filter_products", "args": filter_args}
+
+        # 4.5. List/Show query routing rule
+        list_keywords = {"show", "list", "have", "all", "display", "view", "products", "boards", "motherboards", "mobos", "cpus", "processors", "options"}
+        words = set(query_clean.split())
+        if words.intersection(list_keywords):
+            filter_args = {}
+            
+            # Brand extraction
+            brand_map = {"msi": "MSI", "asus": "ASUS", "amd": "AMD"}
+            for bkw, bval in brand_map.items():
+                if bkw in query_clean:
+                    filter_args["brand"] = bval
+                    break
+                    
+            # Chipset extraction
+            chipset_patterns = ["x870e", "x870", "b850", "b840", "x670", "b650", "a620"]
+            for cp in chipset_patterns:
+                if cp in query_clean:
+                    filter_args["chipset"] = cp.upper()
+                    break
+                    
+            # Series extraction
+            series_map = {"rog": "ROG", "tuf": "TUF", "prime": "PRIME", "pro": "PRO", "proart": "PROART"}
+            for skw, sval in series_map.items():
+                if re.search(r'\b' + re.escape(skw) + r'\b', query_clean):
+                    filter_args["series"] = sval
+                    if sval in ["ROG", "TUF", "PRIME", "PROART"]:
+                        filter_args["brand"] = "ASUS"
+                    break
+                    
+            # Category extraction
+            if any(kw in query_clean for kw in ["board", "motherboard", "mobo", "boards", "motherboards", "mobos"]):
+                filter_args["category"] = "Motherboard"
+            elif any(kw in query_clean for kw in ["cpu", "cpus", "processor", "processors"]):
+                filter_args["category"] = "CPU"
+                
+            if any(k in filter_args for k in ["brand", "chipset", "series", "category"]):
+                filter_args["tool_type"] = "list"
+                return {"tool": "filter_products", "args": filter_args}
+
+        # 5. Spaceless & hyphenless exact match check
+        query_spaceless = query_clean.replace(" ", "").replace("-", "")
+        # Build spaceless product map dynamically if needed (or cached)
+        if not hasattr(self, "_spaceless_catalog_mtime") or self._spaceless_catalog_mtime != self.search_service.catalog_mtime:
+            self._spaceless_product_index = {}
+            for name_clean, item in self.search_service.product_index.items():
+                spaceless_name = name_clean.replace(" ", "").replace("-", "")
+                self._spaceless_product_index[spaceless_name] = item
+            self._spaceless_catalog_mtime = self.search_service.catalog_mtime
+            
+        if query_spaceless in self._spaceless_product_index:
+            matched_item = self._spaceless_product_index[query_spaceless]
+            return {
+                "tool": "search_products",
+                "args": {"query": matched_item.get("product_name", query)}
+            }
 
         # 5. Exact product name match → search_products
         if query_clean in self.search_service.product_index:
