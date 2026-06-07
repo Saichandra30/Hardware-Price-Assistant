@@ -526,7 +526,10 @@ class GeminiClient:
                     
                 # No function calls, we have our final text response
                 final_text = response.text
-                audit_logger.info("FINAL RESPONSE GENERATED.")
+                if not final_text or not str(final_text).strip():
+                    logger.warning("Gemini returned empty response.text. Using fallback.")
+                    final_text = "Sorry, I couldn't generate a response. Please try rephrasing your request."
+                audit_logger.info(f"FINAL RESPONSE GENERATED. Length: {len(final_text)}")
                 yield {"type": "text", "data": final_text}
                 return
                 

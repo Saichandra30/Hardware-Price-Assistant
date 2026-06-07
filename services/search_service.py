@@ -108,24 +108,24 @@ class SearchService:
             return {
                 "status": "ask_clarification",
                 "score": 100,
-                "message": f"You searched for the brand '{query}'. I found {len(self.brand_index[query_clean])} items. Could you be more specific?",
-                "suggestions": self.brand_index[query_clean][:5]
+                "message": f"I found {len(self.brand_index[query_clean])} **{query.upper()}** products. Which type are you interested in?",
+                "suggestions": self.brand_index[query_clean][:10]
             }
             
         if query_clean in self.category_index:
             return {
                 "status": "ask_clarification",
                 "score": 100,
-                "message": f"You searched for the category '{query}'. I found {len(self.category_index[query_clean])} items. Could you be more specific?",
-                "suggestions": self.category_index[query_clean][:5]
+                "message": f"I found {len(self.category_index[query_clean])} **{query.upper()}** products. Would you like to filter by brand, chipset, or price?",
+                "suggestions": self.category_index[query_clean][:10]
             }
             
         if query_clean in self.chipset_index:
             return {
                 "status": "ask_clarification",
                 "score": 100,
-                "message": f"You searched for the chipset '{query}'. I found {len(self.chipset_index[query_clean])} items. Could you be more specific?",
-                "suggestions": self.chipset_index[query_clean][:5]
+                "message": f"I found {len(self.chipset_index[query_clean])} **{query.upper()}** boards. Which brand are you interested in — ASUS or MSI?",
+                "suggestions": self.chipset_index[query_clean][:10]
             }
             
         if query_clean in self.product_index:

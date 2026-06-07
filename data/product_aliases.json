@@ -1,11 +1,25 @@
 {
     "rog": ["ROG STRIX", "ROG CROSSHAIR"],
     "tuf": ["TUF GAMING"],
+    "prime": ["PRIME"],
+    "proart": ["PROART"],
     "9700": ["9700X"],
     "9900": ["9900X"],
     "9600": ["9600X"],
+    "9500": ["9500"],
     "9800x3d": ["9800X3D"],
+    "9800 x3d": ["9800X3D"],
+    "9800x 3d": ["9800X3D"],
+    "9900x3d": ["9900X 3D"],
+    "9900 x3d": ["9900X 3D"],
+    "9950x3d": ["9950X 3D"],
+    "9950 x3d": ["9950X 3D"],
     "7800x3d": ["7800X3D"],
+    "7800 x3d": ["7800X3D"],
     "wifi board": ["WIFI"],
-    "gaming motherboard": ["GAMING"]
+    "wifi motherboard": ["WIFI"],
+    "gaming board": ["GAMING"],
+    "gaming motherboard": ["GAMING"],
+    "premium board": ["ROG STRIX", "ROG CROSSHAIR"],
+    "premium motherboard": ["ROG STRIX", "ROG CROSSHAIR"]
 }

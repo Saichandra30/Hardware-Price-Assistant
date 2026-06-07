@@ -512,10 +512,12 @@ class GroqClient:
                     else:
                         # No tool calls, we have our final response
                         final_text = response_message.content
-                        if final_text:
-                            self.messages.append({"role": "assistant", "content": final_text})
-                            audit_logger.info("FINAL RESPONSE GENERATED (GROQ).")
-                            yield {"type": "text", "data": final_text}
+                        if not final_text or not str(final_text).strip():
+                            logger.warning("Groq returned empty content. Using fallback.")
+                            final_text = "Sorry, I couldn't generate a response. Please try rephrasing your request."
+                        self.messages.append({"role": "assistant", "content": final_text})
+                        audit_logger.info(f"FINAL RESPONSE GENERATED (GROQ). Length: {len(final_text)}")
+                        yield {"type": "text", "data": final_text}
                         return
                         
             except Exception as e:
