@@ -232,14 +232,15 @@ class SearchService:
         }
 
     def filter_products(self, category: str = None, brand: str = None, chipset: str = None,
-                        max_price: float = None, sub_category: str = None, series: str = None) -> dict:
+                        max_price: float = None, sub_category: str = None, series: str = None,
+                        name_contains: str = None) -> dict:
         """
         Filter products based on specific criteria.
-        Supports: category, brand, chipset, max_price, sub_category, series
+        Supports: category, brand, chipset, max_price, sub_category, series, name_contains
         """
         logger.info(
             f"Filtering products - category:{category}, brand:{brand}, chipset:{chipset}, "
-            f"max_price:{max_price}, sub_category:{sub_category}, series:{series}"
+            f"max_price:{max_price}, sub_category:{sub_category}, series:{series}, name_contains:{name_contains}"
         )
         results = []
         
@@ -265,7 +266,17 @@ class SearchService:
 
             if sub_category and sub_category.upper() != str(item.get("sub_category", "")).upper():
                 continue
-                
+
+            if name_contains:
+                item_name_upper = str(item.get("product_name", "")).upper()
+                term = name_contains.upper()
+                if term == "WIFI":
+                    if not any(w in item_name_upper for w in ["WIFI", "WI-FI", "WIIF", "WI FI"]):
+                        continue
+                else:
+                    if term not in item_name_upper:
+                        continue
+
             if chipset:
                 target_chipset = chipset.upper()
                 item_chipset = str(item.get("chipset", "")).upper()

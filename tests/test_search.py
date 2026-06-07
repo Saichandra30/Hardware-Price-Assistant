@@ -3,9 +3,9 @@ from unittest.mock import patch
 from services.search_service import SearchService
 
 MOCK_CATALOG = [
-    {"product_name": "Ryzen 9 9950X", "brand": "AMD", "category": "CPU", "price_data": {"VendorA": 750.0}},
-    {"product_name": "MEG X870E GODLIKE", "brand": "MSI", "category": "MOTHERBOARD", "chipset": "X870E", "price_data": {"VendorA": 1200.0}},
-    {"product_name": "B850M GAMING", "brand": "ASUS", "category": "MOTHERBOARD", "chipset": "B850", "price_data": {"VendorB": 150.0}}
+    {"product_name": "Ryzen 9 9950X", "brand": "AMD", "category": "CPU", "prices": {"VendorA": 750.0}},
+    {"product_name": "MEG X870E GODLIKE", "brand": "MSI", "category": "MOTHERBOARD", "chipset": "X870E", "prices": {"VendorA": 1200.0}},
+    {"product_name": "B850M GAMING", "brand": "ASUS", "category": "MOTHERBOARD", "chipset": "B850", "prices": {"VendorB": 150.0}}
 ]
 
 @pytest.fixture
