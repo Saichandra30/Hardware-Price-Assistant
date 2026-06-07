@@ -104,7 +104,21 @@ class FastIntentRouter:
                 "args": {"category": query_clean, "tool_type": "category"}
             }
 
-        # 9. Alias match → search_products
+        # 9. Series match → filter_products(series=)  e.g. "ROG", "TUF", "PRIME"
+        if query_clean in self.search_service.series_index:
+            return {
+                "tool": "filter_products",
+                "args": {"series": query_clean, "tool_type": "series"}
+            }
+
+        # 10. Sub-category match → filter_products(sub_category=)  e.g. "gaming", "mainstream"
+        if query_clean in self.search_service.sub_category_index:
+            return {
+                "tool": "filter_products",
+                "args": {"sub_category": query_clean, "tool_type": "sub_category"}
+            }
+
+        # 11. Alias match → search_products
         for alias in self.search_service.alias_index:
             if alias == query_clean:
                 return {"tool": "search_products", "args": {"query": query}}

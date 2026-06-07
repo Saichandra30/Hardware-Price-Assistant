@@ -174,22 +174,29 @@ class HybridClient:
                             )
 
                     elif tool_name == "filter_products":
-                        brand_arg = args.get("brand")
-                        chipset_arg = args.get("chipset")
+                        brand_arg    = args.get("brand")
+                        chipset_arg  = args.get("chipset")
                         category_arg = args.get("category")
-                        tool_type = args.get("tool_type", "brand")
+                        series_arg   = args.get("series")
+                        subcat_arg   = args.get("sub_category")
+                        tool_type    = args.get("tool_type", "brand")
 
                         result = self.tool_manager.search_service.filter_products(
                             brand=brand_arg,
                             chipset=chipset_arg,
-                            category=category_arg if category_arg else None
+                            category=category_arg if category_arg else None,
+                            series=series_arg,
+                            sub_category=subcat_arg
                         )
                         event = {"type": "tool_result", "func_name": "filter_products", "data": result}
                         components_executed.append(event)
                         yield event
 
                         count = result.get("count", 0)
-                        label = (chipset_arg or brand_arg or category_arg or "").upper()
+                        # Build a human-readable label
+                        label = (
+                            (chipset_arg or brand_arg or series_arg or subcat_arg or category_arg or "")
+                        ).upper()
                         if count > 0:
                             final_text = (
                                 f"I found **{count} products** matching **{label}**. "

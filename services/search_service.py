@@ -28,12 +28,16 @@ class SearchService:
         self.brand_index = {}
         self.chipset_index = {}
         self.category_index = {}
+        self.series_index = {}
+        self.sub_category_index = {}
         
         for item in self.catalog:
             name_clean = str(item.get("product_name", "")).strip().lower()
             brand_clean = str(item.get("brand", "")).strip().lower()
             chipset_clean = str(item.get("chipset", "")).strip().lower()
             category_clean = str(item.get("category", "")).strip().lower()
+            series_clean = str(item.get("series", "")).strip().lower()
+            subcat_clean = str(item.get("sub_category", "")).strip().lower()
             
             # Populate product index
             self.product_index[name_clean] = item
@@ -55,6 +59,18 @@ class SearchService:
                 if category_clean not in self.category_index:
                     self.category_index[category_clean] = []
                 self.category_index[category_clean].append(item)
+
+            # Populate series index (ROG, TUF, PRIME, PRO)
+            if series_clean:
+                if series_clean not in self.series_index:
+                    self.series_index[series_clean] = []
+                self.series_index[series_clean].append(item)
+
+            # Populate sub_category index (Gaming, Mainstream, Professional)
+            if subcat_clean:
+                if subcat_clean not in self.sub_category_index:
+                    self.sub_category_index[subcat_clean] = []
+                self.sub_category_index[subcat_clean].append(item)
                 
         # Expand alias index to directly map alias to product objects if they exist
         self.alias_index = {}
@@ -215,11 +231,16 @@ class SearchService:
             "product2_result": res2
         }
 
-    def filter_products(self, category: str = None, brand: str = None, chipset: str = None, max_price: float = None) -> dict:
+    def filter_products(self, category: str = None, brand: str = None, chipset: str = None,
+                        max_price: float = None, sub_category: str = None, series: str = None) -> dict:
         """
         Filter products based on specific criteria.
+        Supports: category, brand, chipset, max_price, sub_category, series
         """
-        logger.info(f"Filtering products - category:{category}, brand:{brand}, chipset:{chipset}, max_price:{max_price}")
+        logger.info(
+            f"Filtering products - category:{category}, brand:{brand}, chipset:{chipset}, "
+            f"max_price:{max_price}, sub_category:{sub_category}, series:{series}"
+        )
         results = []
         
         # Parse query-like category strings (e.g. "AM5 Motherboard")
@@ -237,6 +258,12 @@ class SearchService:
                 continue
                 
             if brand and brand.upper() != str(item.get("brand", "")).upper():
+                continue
+
+            if series and series.upper() != str(item.get("series", "")).upper():
+                continue
+
+            if sub_category and sub_category.upper() != str(item.get("sub_category", "")).upper():
                 continue
                 
             if chipset:
@@ -256,6 +283,7 @@ class SearchService:
                 else:
                     if target_chipset not in item_chipset and target_chipset not in item_name:
                         continue
+
             if max_price is not None:
                 prices = [p for p in item.get("prices", {}).values() if p > 0]
                 if not prices:
