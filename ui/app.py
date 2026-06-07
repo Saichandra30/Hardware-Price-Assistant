@@ -249,6 +249,7 @@ def run_app() -> None:
         if st.button("🗑️ Clear Chat", use_container_width=True):
             st.session_state.messages = [{"role": "assistant", "content": "Chat cleared. How can I help?"}]
             save_history()
+            st.cache_data.clear()
             if "client" in st.session_state:
                 st.session_state.client.reset_memory()
             st.rerun()

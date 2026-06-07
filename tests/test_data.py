@@ -24,5 +24,5 @@ def test_normalize_catalog(mock_excel_data):
     cpu1 = next(p for p in catalog if "9950X" in p["product_name"])
     assert cpu1["brand"] == "AMD"
     assert cpu1["category"] == "CPU"
-    assert "Price_1" in cpu1["price_data"]
-    assert cpu1["price_data"]["Price_1"] == 750.0
+    assert "dealer" in cpu1["prices"]
+    assert cpu1["prices"]["dealer"] == 750.0

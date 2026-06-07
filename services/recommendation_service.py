@@ -3,7 +3,6 @@ Service for generating hardware recommendations based on compatibility and tier 
 """
 import logging
 from services.search_service import SearchService
-from services.catalog_loader import get_catalog
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,6 @@ class RecommendationService:
 
     def __init__(self):
         self.search_service = SearchService()
-        self.catalog = get_catalog()
         
         # Chipset hierarchy mapping to tiers
         self.chipset_hierarchy = {
@@ -64,7 +62,7 @@ class RecommendationService:
         is_am5 = bool(re.search(r'(?:7|8|9)\d{3}', cpu_name_upper) or "X3D" in cpu_name_upper)
         
         # 2. Filter motherboards
-        all_mbs = [p for p in self.catalog if str(p.get("category", "")).upper() == "MOTHERBOARD"]
+        all_mbs = [p for p in self.search_service.catalog if str(p.get("category", "")).upper() == "MOTHERBOARD"]
         
         tiers = {
             "Recommended Premium Choice": [],
@@ -93,7 +91,7 @@ class RecommendationService:
                 tiers[tier].append(mb_copy)
                 
         # Double-check validation against current catalog IDs
-        catalog_ids = {item.get("id") for item in self.catalog if item.get("id")}
+        catalog_ids = {item.get("id") for item in self.search_service.catalog if item.get("id")}
         recommendations = {}
         
         ordered_tiers = [
@@ -150,7 +148,7 @@ class RecommendationService:
         category = product.get("category")
         
         related = []
-        for item in self.catalog:
+        for item in self.search_service.catalog:
             if item.get("id") == product.get("id"):
                 continue
                 

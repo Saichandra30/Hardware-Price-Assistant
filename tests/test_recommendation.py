@@ -14,7 +14,6 @@ MOCK_CATALOG = [
 
 @pytest.fixture
 def recommendation_service(mocker):
-    mocker.patch('services.recommendation_service.get_catalog', return_value=MOCK_CATALOG)
     mocker.patch('services.search_service.get_catalog', return_value=MOCK_CATALOG)
     return RecommendationService()
 

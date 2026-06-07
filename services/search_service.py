@@ -20,63 +20,86 @@ class SearchService:
     """
 
     def __init__(self):
-        self.catalog = get_catalog()
         self.aliases = self._load_aliases()
-        
-        # Build O(1) in-memory indices for ultra-low latency routing
-        self.product_index = {}
-        self.brand_index = {}
-        self.chipset_index = {}
-        self.category_index = {}
-        self.series_index = {}
-        self.sub_category_index = {}
-        
-        for item in self.catalog:
-            name_clean = str(item.get("product_name", "")).strip().lower()
-            brand_clean = str(item.get("brand", "")).strip().lower()
-            chipset_clean = str(item.get("chipset", "")).strip().lower()
-            category_clean = str(item.get("category", "")).strip().lower()
-            series_clean = str(item.get("series", "")).strip().lower()
-            subcat_clean = str(item.get("sub_category", "")).strip().lower()
-            
-            # Populate product index
-            self.product_index[name_clean] = item
-            
-            # Populate brand index
-            if brand_clean:
-                if brand_clean not in self.brand_index:
-                    self.brand_index[brand_clean] = []
-                self.brand_index[brand_clean].append(item)
-                
-            # Populate chipset index
-            if chipset_clean:
-                if chipset_clean not in self.chipset_index:
-                    self.chipset_index[chipset_clean] = []
-                self.chipset_index[chipset_clean].append(item)
-                
-            # Populate category index
-            if category_clean:
-                if category_clean not in self.category_index:
-                    self.category_index[category_clean] = []
-                self.category_index[category_clean].append(item)
+        self.catalog_mtime = 0.0
+        self._check_and_load_catalog()
 
-            # Populate series index (ROG, TUF, PRIME, PRO)
-            if series_clean:
-                if series_clean not in self.series_index:
-                    self.series_index[series_clean] = []
-                self.series_index[series_clean].append(item)
-
-            # Populate sub_category index (Gaming, Mainstream, Professional)
-            if subcat_clean:
-                if subcat_clean not in self.sub_category_index:
-                    self.sub_category_index[subcat_clean] = []
-                self.sub_category_index[subcat_clean].append(item)
+    def _check_and_load_catalog(self):
+        """Checks if catalog.json has changed on disk, and reloads it if so."""
+        from services.catalog_loader import CATALOG_PATH
+        current_mtime = 0.0
+        if os.path.exists(CATALOG_PATH):
+            try:
+                current_mtime = os.path.getmtime(CATALOG_PATH)
+            except Exception:
+                pass
+        
+        # If catalog is not loaded yet or file has been modified
+        if not hasattr(self, "catalog") or current_mtime != self.catalog_mtime:
+            logger.info("Catalog file changed or loading for the first time. Building indices...")
+            self.catalog = get_catalog()
+            self.catalog_mtime = current_mtime
+            
+            # Clear fuzzy match cache to prevent stale results
+            try:
+                self._fuzzy_match.cache_clear()
+            except Exception:
+                pass
+            
+            # Build O(1) in-memory indices for ultra-low latency routing
+            self.product_index = {}
+            self.brand_index = {}
+            self.chipset_index = {}
+            self.category_index = {}
+            self.series_index = {}
+            self.sub_category_index = {}
+            
+            for item in self.catalog:
+                name_clean = str(item.get("product_name", "")).strip().lower()
+                brand_clean = str(item.get("brand", "")).strip().lower()
+                chipset_clean = str(item.get("chipset", "")).strip().lower()
+                category_clean = str(item.get("category", "")).strip().lower()
+                series_clean = str(item.get("series", "")).strip().lower()
+                subcat_clean = str(item.get("sub_category", "")).strip().lower()
                 
-        # Expand alias index to directly map alias to product objects if they exist
-        self.alias_index = {}
-        for alias, targets in self.aliases.items():
-            alias_clean = alias.strip().lower()
-            self.alias_index[alias_clean] = targets
+                # Populate product index
+                self.product_index[name_clean] = item
+                
+                # Populate brand index
+                if brand_clean:
+                    if brand_clean not in self.brand_index:
+                        self.brand_index[brand_clean] = []
+                    self.brand_index[brand_clean].append(item)
+                    
+                # Populate chipset index
+                if chipset_clean:
+                    if chipset_clean not in self.chipset_index:
+                        self.chipset_index[chipset_clean] = []
+                    self.chipset_index[chipset_clean].append(item)
+                    
+                # Populate category index
+                if category_clean:
+                    if category_clean not in self.category_index:
+                        self.category_index[category_clean] = []
+                    self.category_index[category_clean].append(item)
+
+                # Populate series index (ROG, TUF, PRIME, PRO)
+                if series_clean:
+                    if series_clean not in self.series_index:
+                        self.series_index[series_clean] = []
+                    self.series_index[series_clean].append(item)
+
+                # Populate sub_category index (Gaming, Mainstream, Professional)
+                if subcat_clean:
+                    if subcat_clean not in self.sub_category_index:
+                        self.sub_category_index[subcat_clean] = []
+                    self.sub_category_index[subcat_clean].append(item)
+                    
+            # Expand alias index to directly map alias to product objects if they exist
+            self.alias_index = {}
+            for alias, targets in self.aliases.items():
+                alias_clean = alias.strip().lower()
+                self.alias_index[alias_clean] = targets
 
     def _load_aliases(self) -> dict:
         if os.path.exists(ALIASES_PATH):
@@ -88,6 +111,7 @@ class SearchService:
         """
         Find a product by its exact name (O(1) lookup).
         """
+        self._check_and_load_catalog()
         logger.info(f"Performing exact lookup for: {product_name}")
         target = str(product_name).strip().lower()
         
@@ -113,6 +137,7 @@ class SearchService:
         """
         Search for a product using exact, alias, and fuzzy matching.
         """
+        self._check_and_load_catalog()
         logger.info(f"Searching product for query: {query}")
         if not self.catalog:
             return {"status": "error", "message": "Catalog is empty."}
@@ -238,6 +263,7 @@ class SearchService:
         Filter products based on specific criteria.
         Supports: category, brand, chipset, max_price, sub_category, series, name_contains
         """
+        self._check_and_load_catalog()
         logger.info(
             f"Filtering products - category:{category}, brand:{brand}, chipset:{chipset}, "
             f"max_price:{max_price}, sub_category:{sub_category}, series:{series}, name_contains:{name_contains}"
@@ -315,6 +341,7 @@ class SearchService:
         """
         Get the cheapest product matching the criteria.
         """
+        self._check_and_load_catalog()
         logger.info(f"Finding cheapest product - category:{category}, brand:{brand}, chipset:{chipset}")
         
         # Parse query-like category strings (e.g. "AM5 Motherboard")

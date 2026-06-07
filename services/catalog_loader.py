@@ -199,13 +199,21 @@ def load_catalog() -> list[dict]:
     
     return catalog
 
-@st.cache_data
 def get_catalog() -> list[dict]:
     """
-    Get the catalog with Streamlit caching.
-    
-    Returns:
-        list[dict]: The cached normalized catalog.
+    Get the catalog with Streamlit caching, auto-invalidating when catalog.json changes.
     """
+    mtime = 0.0
+    if os.path.exists(CATALOG_PATH):
+        try:
+            mtime = os.path.getmtime(CATALOG_PATH)
+        except Exception:
+            pass
+    return _get_cached_catalog(mtime)
+
+@st.cache_data
+def _get_cached_catalog(mtime: float) -> list[dict]:
+    """Helper cached method mapped to modification time."""
     return load_catalog()
+
 

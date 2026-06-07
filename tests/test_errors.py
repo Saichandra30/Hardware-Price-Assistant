@@ -6,7 +6,6 @@ from services.search_service import SearchService
 def tool_manager(mocker):
     # Mock services to isolate error handling tests
     mocker.patch('services.search_service.get_catalog', return_value=[])
-    mocker.patch('services.recommendation_service.get_catalog', return_value=[])
     return ToolManager()
 
 def test_tool_exact_lookup_type_error(tool_manager):

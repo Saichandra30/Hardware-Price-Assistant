@@ -23,19 +23,20 @@ def hybrid_client(mocker):
     client = HybridClient()
     return client
 
-def test_hybrid_client_default_gemini(hybrid_client):
-    """Test if HybridClient uses Gemini by default."""
-    assert hybrid_client.active_backend == "gemini"
+def test_hybrid_client_default_groq(hybrid_client):
+    """Test if HybridClient uses Groq by default."""
+    assert hybrid_client.active_backend == "groq"
     
     mock_response = MagicMock()
-    mock_response.function_calls = None
-    mock_response.text = "Gemini response"
-    hybrid_client.gemini_client.chat.send_message.return_value = mock_response
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.tool_calls = None
+    mock_response.choices[0].message.content = "Groq response"
+    hybrid_client.groq_client.client.chat.completions.create.return_value = mock_response
     
     result = hybrid_client.generate_response("Test query")
-    assert result == "Gemini response"
-    assert hybrid_client.gemini_client.chat.send_message.called
-    assert not hybrid_client.groq_client.client.chat.completions.create.called
+    assert result == "Groq response"
+    assert hybrid_client.groq_client.client.chat.completions.create.called
+    assert not hybrid_client.gemini_client.chat.send_message.called
 
 def test_hybrid_client_failover_to_groq(hybrid_client, mocker):
     """Test if HybridClient seamlessly falls back to Groq on RateLimitError."""
