@@ -299,7 +299,21 @@ class HybridClient:
             logger.warning("LLM returned empty response. Yielding fallback.")
             final_text = _FALLBACK_EMPTY
             yield {"type": "text", "data": final_text}
-        
+            
+        # ── Safely check for empty motherboard recommendations and override LLM hallucination ──
+        rec_empty = False
+        for comp in components_executed:
+            if comp.get("func_name") == "recommend_products":
+                data = comp.get("data") or {}
+                if data.get("status") == "empty" or not any(v is not None for v in (data.get("recommendations") or {}).values()):
+                    rec_empty = True
+                    break
+
+        if rec_empty:
+            logger.info("Recommendation tool returned empty. Overriding final_text to catalog fallback.")
+            final_text = "I couldn't find compatible motherboard recommendations in the current catalog."
+            yield {"type": "text", "data": final_text}
+            
         total_time = time.perf_counter() - total_start_time
         logger.info(f"[Latency] Total Request Time: {total_time:.4f}s")
         

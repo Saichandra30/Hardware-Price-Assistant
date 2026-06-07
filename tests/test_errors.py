@@ -11,9 +11,9 @@ def tool_manager(mocker):
 
 def test_tool_exact_lookup_type_error(tool_manager):
     """Test that passing an invalid type like int or list returns safe error JSON instead of crashing."""
-    res = tool_manager.exact_lookup({"invalid": "type"})
+    res = tool_manager.lookup_product(123)
     assert "error" in res
-    assert "must be a string" in res["error"]
+    assert "Invalid parameter type." in res["error"]
     
 def test_tool_compare_products_missing_args(tool_manager):
     """Test missing or invalid args in compare products."""
@@ -27,7 +27,7 @@ def test_tool_internal_exception_swallowing(tool_manager, mocker):
     mocker.patch.object(tool_manager.search_service, 'search_product', side_effect=Exception("Massive Stack Trace Exposing Path C:/Users/Admin/Secret"))
     
     # Tool should catch it
-    res = tool_manager.search_product("9600X")
+    res = tool_manager.search_products("9600X")
     
     # Verify the secret path is NOT leaked to the LLM
     assert "error" in res

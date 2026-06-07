@@ -80,7 +80,20 @@ def render_recommendations(recs: dict) -> None:
         "Recommended Performance Choice": "🥈",
         "Recommended Value Choice": "🥉",
     }
-    valid_recs = {k: v for k, v in recs.items() if v}
+    
+    # Validation: Confirm recommended product exists in the catalog database.
+    from services.catalog_loader import get_catalog
+    catalog = get_catalog()
+    catalog_ids = {p.get("id") for p in catalog if p.get("id")}
+    
+    valid_recs = {}
+    for k, v in recs.items():
+        if v and v.get("id") in catalog_ids:
+            valid_recs[k] = v
+        else:
+            # Reject recommendations not in catalog database
+            pass
+            
     if not valid_recs:
         st.info("No compatible recommendations found for this product.")
         return

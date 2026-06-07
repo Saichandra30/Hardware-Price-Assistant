@@ -92,8 +92,8 @@ class RecommendationService:
                 mb_copy["_min_price"] = min(prices)
                 tiers[tier].append(mb_copy)
                 
-        # 3. Pick the best recommendation for each tier
-        # We order it specifically: Premium first, then Performance, then Value
+        # Double-check validation against current catalog IDs
+        catalog_ids = {item.get("id") for item in self.catalog if item.get("id")}
         recommendations = {}
         
         ordered_tiers = [
@@ -112,8 +112,23 @@ class RecommendationService:
             mb_list.sort(key=lambda x: x["_min_price"])
             best_mb = mb_list[0]
             del best_mb["_min_price"]
-            recommendations[tier_name] = best_mb
             
+            # Validate that the product exists in the catalog
+            if best_mb.get("id") in catalog_ids:
+                recommendations[tier_name] = best_mb
+            else:
+                recommendations[tier_name] = None
+            
+        # Check if recommendations are empty
+        has_recs = any(v is not None for v in recommendations.values())
+        if not has_recs:
+            return {
+                "status": "empty",
+                "message": "I couldn't find compatible motherboard recommendations in the current catalog.",
+                "cpu": cpu,
+                "recommendations": recommendations
+            }
+
         return {
             "status": "success",
             "cpu": cpu,
